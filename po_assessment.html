@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Assessment — Sminex IT</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F4F1;--surface:#FFFFFF;--surface2:#F8F7F5;
+  --border:#E2DFD8;--border2:#C9C5BC;
+  --text:#1C1B18;--muted:#6B6760;--hint:#A09C96;
+  --blue:#1D5EB8;--blue-bg:#EBF1FA;--blue-light:#D1E1F5;
+  --green:#166534;--green-bg:#ECFAF1;--green-light:#C3E8D1;
+  --amber:#92400E;--amber-bg:#FDF6E7;--amber-light:#FCD9A0;
+  --red:#991B1B;--red-bg:#FEF2F2;--red-light:#FECACA;
+  --purple:#5B21B6;--purple-bg:#F5F3FF;--purple-light:#DDD6FE;
+  --teal:#0F766E;--teal-bg:#F0FDFA;--teal-light:#99F6E4;
+  --radius:10px;--radius-lg:14px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem;font-size:15px;line-height:1.6}
+.page{max-width:900px;margin:0 auto}
+
+/* Header */
+.header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 2rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.header-title{font-size:19px;font-weight:600;color:var(--text)}
+.header-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.header-logo{font-size:11px;font-weight:700;color:var(--hint);letter-spacing:.07em;text-transform:uppercase}
+
+/* Meta */
+.meta{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 2rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.meta-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.meta-field input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit}
+.meta-field input:focus{border-color:var(--blue);background:var(--surface)}
+
+/* Tabs */
+.tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.25rem}
+.tab-btn{flex:1;padding:14px 1rem;font-size:14px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:inherit;transition:all .2s;border-right:1px solid var(--border);position:relative}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:var(--blue-bg);color:var(--blue)}
+.tab-btn .tab-icon{display:block;font-size:18px;margin-bottom:3px}
+.tab-btn .tab-label{display:block;font-size:12px;opacity:.75;font-weight:400;margin-top:1px}
+.tab-btn .tab-badge{position:absolute;top:10px;right:14px;background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;display:none}
+.tab-btn .tab-badge.show{display:block}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Progress */
+.progress-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.875rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.25rem}
+.progress-track{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.progress-fill-mgr{background:var(--blue)}
+.progress-fill-self{background:var(--purple)}
+.progress-label{font-size:12px;color:var(--muted);white-space:nowrap}
+.progress-count{font-size:14px;font-weight:600;color:var(--text);min-width:36px;text-align:right}
+
+/* Manager cards */
+.comp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.875rem;overflow:hidden;transition:border-color .2s}
+.comp-card.rated{border-color:var(--border2)}
+.comp-header{padding:.875rem 1.5rem;display:flex;align-items:center;gap:.875rem;cursor:pointer;user-select:none}
+.comp-header:hover{background:var(--surface2)}
+.comp-num{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
+.comp-num.rated-j{background:var(--blue-bg);border-color:var(--blue-light);color:var(--blue)}
+.comp-num.rated-m{background:var(--green-bg);border-color:var(--green-light);color:var(--green)}
+.comp-num.rated-s{background:var(--amber-bg);border-color:var(--amber-light);color:var(--amber)}
+.comp-info{flex:1}
+.comp-code{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hint);margin-bottom:1px}
+.comp-name{font-size:14px;font-weight:600;color:var(--text)}
+.comp-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid transparent}
+.badge-none{background:var(--surface2);color:var(--hint);border-color:var(--border)}
+.badge-j{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-light)}
+.badge-m{background:var(--green-bg);color:var(--green);border-color:var(--green-light)}
+.badge-s{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-light)}
+.badge-0{background:var(--red-bg);color:var(--red);border-color:var(--red-light)}
+.comp-chevron{color:var(--hint);font-size:16px;transition:transform .2s;flex-shrink:0}
+.comp-card.open .comp-chevron{transform:rotate(90deg)}
+.comp-body{display:none;border-top:1px solid var(--border);padding:1.25rem 1.5rem}
+.comp-card.open .comp-body{display:block}
+
+/* Criteria grid */
+.criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.625rem;margin-bottom:1rem}
+.criteria-col{border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.criteria-col.active-j{border-color:var(--blue);border-width:2px}
+.criteria-col.active-m{border-color:var(--green);border-width:2px}
+.criteria-col.active-s{border-color:var(--amber);border-width:2px}
+.criteria-head{padding:6px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.criteria-head-j{background:var(--blue-bg);color:var(--blue)}
+.criteria-head-m{background:var(--green-bg);color:var(--green)}
+.criteria-head-s{background:var(--amber-bg);color:var(--amber)}
+.criteria-body{padding:8px 12px;font-size:12px;color:var(--muted);line-height:1.5}
+.criteria-body li{margin-bottom:4px;padding-left:10px;position:relative}
+.criteria-body li::before{content:'·';position:absolute;left:0;color:var(--hint)}
+
+/* Rating buttons */
+.rating-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rating-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+.rating-btn{padding:6px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--muted);font-family:inherit}
+.rating-btn:hover{border-color:var(--border2);background:var(--surface2)}
+.rating-btn.sel-0{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.rating-btn.sel-j{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.rating-btn.sel-m{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.rating-btn.sel-s{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.comp-comment{margin-top:.875rem;padding-top:.875rem;border-top:1px solid var(--border)}
+.comp-comment label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+.comp-comment textarea{width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit;resize:vertical;min-height:54px;line-height:1.5}
+.comp-comment textarea:focus{border-color:var(--blue);background:var(--surface)}
+
+/* ===== SELF-ASSESSMENT ===== */
+.self-intro{background:var(--purple-bg);border:1px solid var(--purple-light);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start}
+.self-intro-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.self-intro p{font-size:13px;color:#3B0764;line-height:1.6}
+.self-intro strong{font-weight:700}
+
+.self-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.875rem;overflow:hidden}
+.self-card.filled{border-color:var(--border2)}
+.self-header{padding:.875rem 1.5rem;display:flex;align-items:center;gap:.875rem;cursor:pointer;user-select:none}
+.self-header:hover{background:var(--surface2)}
+.self-body{display:none;border-top:1px solid var(--border);padding:1.25rem 1.5rem}
+.self-card.open .self-body{display:block}
+.self-card.open .comp-chevron{transform:rotate(90deg)}
+
+/* Question block */
+.q-block{margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.q-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.q-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:.5rem;line-height:1.5}
+.q-hint{font-size:11px;color:var(--muted);margin-bottom:.625rem;font-style:italic}
+
+/* Frequency scale */
+.freq-scale{display:flex;gap:6px;flex-wrap:wrap}
+.freq-btn{padding:5px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);font-family:inherit;transition:all .15s}
+.freq-btn:hover{border-color:var(--border2);background:var(--surface)}
+.freq-btn.freq-sel-1{background:#FEF2F2;border-color:#FECACA;color:#991B1B;font-weight:700}
+.freq-btn.freq-sel-2{background:#FFF7ED;border-color:#FED7AA;color:#9A3412;font-weight:700}
+.freq-btn.freq-sel-3{background:var(--amber-bg);border-color:var(--amber-light);color:var(--amber);font-weight:700}
+.freq-btn.freq-sel-4{background:var(--blue-bg);border-color:var(--blue-light);color:var(--blue);font-weight:700}
+.freq-btn.freq-sel-5{background:var(--green-bg);border-color:var(--green-light);color:var(--green);font-weight:700}
+
+/* Example textarea */
+.example-field{margin-top:.625rem}
+.example-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.example-field textarea{width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit;resize:vertical;min-height:52px;line-height:1.5}
+.example-field textarea:focus{border-color:var(--purple);background:var(--surface)}
+.example-required{border-color:var(--red-light)!important;background:var(--red-bg)!important}
+
+/* Self result badge */
+.self-score-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--purple-light);background:var(--purple-bg);color:var(--purple)}
+
+/* ===== RESULTS ===== */
+.results{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.75rem 2rem;margin-top:1.25rem;display:none}
+.results.visible{display:block}
+.results-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+.grade-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.grade-badge-lg{padding:10px 22px;border-radius:12px;font-size:20px;font-weight:700;border:2px solid transparent}
+.grade-j{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-light)}
+.grade-m{background:var(--green-bg);color:var(--green);border-color:var(--green-light)}
+.grade-s{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-light)}
+.grade-nd{background:var(--red-bg);color:var(--red);border-color:var(--red-light)}
+.grade-score-wrap{font-size:13px;color:var(--muted)}
+.grade-score-big{font-size:26px;font-weight:700;color:var(--text)}
+
+/* Score chart */
+.score-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.score-name{font-size:12px;color:var(--muted);width:220px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score-track{flex:1;height:7px;background:var(--surface2);border-radius:99px;overflow:visible;border:1px solid var(--border);position:relative}
+.score-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.fill-j{background:var(--blue)}
+.fill-m{background:var(--green)}
+.fill-s{background:var(--amber)}
+.fill-nd{background:#D1D5DB}
+.fill-self{background:var(--purple)}
+.score-val{font-size:11px;font-weight:600;width:52px;text-align:right;flex-shrink:0;color:var(--muted)}
+
+/* Gap chart */
+.gap-section{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.gap-section h3{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.gap-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.gap-name{font-size:12px;color:var(--muted);width:220px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gap-bar-wrap{flex:1;position:relative;height:18px}
+.gap-center{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:2px;height:18px;background:var(--border2)}
+.gap-fill{position:absolute;top:3px;height:12px;border-radius:3px;transition:all .6s ease}
+.gap-fill-over{background:var(--purple);opacity:.8}
+.gap-fill-under{background:var(--red);opacity:.7}
+.gap-fill-match{background:var(--green);opacity:.7}
+.gap-label{font-size:11px;font-weight:600;width:70px;text-align:right;flex-shrink:0}
+.gap-over{color:var(--purple)}
+.gap-under{color:var(--red)}
+.gap-match{color:var(--green)}
+
+/* Summary box */
+.summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem}
+.summary-box h3{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+.summary-box p{font-size:13px;color:var(--text);line-height:1.6}
+
+/* General comment */
+.general-comment{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.general-comment label{display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.general-comment textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit;resize:vertical;min-height:72px;line-height:1.6}
+.general-comment textarea:focus{border-color:var(--blue);background:var(--surface)}
+
+/* Actions */
+.actions{display:flex;gap:.625rem;margin-top:1.25rem;flex-wrap:wrap}
+.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);background:var(--surface);color:var(--text);font-family:inherit;transition:all .15s}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{opacity:.9}
+.btn-purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn-purple:hover{opacity:.9}
+.btn-ghost{border-color:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+
+/* Legend */
+.legend{display:flex;gap:1rem;margin-bottom:.875rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+@media print{
+  body{background:#fff;padding:0}
+  .actions,.comp-body,.comp-chevron,.rating-row,.comp-comment textarea,.general-comment textarea,.self-body,.tabs,.self-intro,.freq-btn,.example-field textarea{display:none!important}
+  .comp-card,.self-card{break-inside:avoid}
+  .results{display:block!important;border:1px solid #ccc}
+  .page{max-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <div>
+    <div class="header-logo">Sminex IT · Product</div>
+    <div class="header-title">Ассесмент Product Owner</div>
+    <div class="header-sub">Карта компетенций 2025 · Junior / Middle / Senior</div>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:3px">Версия</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text)">v1.0 · 9 компетенций</div>
+  </div>
+</div>
+
+<div class="meta">
+  <div class="meta-field">
+    <label>Сотрудник</label>
+    <input type="text" id="meta-candidate" placeholder="ФИО" />
+  </div>
+  <div class="meta-field">
+    <label>Руководитель / оценивающий</label>
+    <input type="text" id="meta-assessor" placeholder="ФИО" />
+  </div>
+  <div class="meta-field">
+    <label>Дата</label>
+    <input type="date" id="meta-date" />
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('mgr')" id="tab-mgr">
+    <span class="tab-icon">👤</span>
+    Оценка руководителя
+    <span class="tab-label">наблюдение и аргументация</span>
+    <span class="tab-badge" id="badge-mgr"></span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('self')" id="tab-self">
+    <span class="tab-icon">🪞</span>
+    Само-оценка
+    <span class="tab-label">рефлексия и примеры</span>
+    <span class="tab-badge" id="badge-self"></span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('gap')" id="tab-gap">
+    <span class="tab-icon">⚖</span>
+    Сводка и анализ
+    <span class="tab-label">расхождения и итог</span>
+    <span class="tab-badge" id="badge-gap"></span>
+  </button>
+</div>
+
+<!-- TAB: MANAGER -->
+<div class="tab-content active" id="tab-content-mgr">
+  <div class="progress-bar">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">Прогресс</div>
+    <div class="progress-track"><div class="progress-fill progress-fill-mgr" id="mgr-prog-fill" style="width:0%"></div></div>
+    <div class="progress-count"><span id="mgr-prog-done">0</span>/9</div>
+    <div class="progress-label" id="mgr-prog-text">заполните все блоки</div>
+  </div>
+  <div id="mgr-comp-list"></div>
+  <div class="general-comment">
+    <label>Итоговые комментарии руководителя</label>
+    <textarea id="mgr-general" placeholder="Общие наблюдения, рекомендации, план развития..."></textarea>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="window.print()">Печать / PDF</button>
+    <button class="btn btn-ghost" onclick="resetMgr()">Сбросить</button>
+  </div>
+</div>
+
+<!-- TAB: SELF -->
+<div class="tab-content" id="tab-content-self">
+
+  <div class="self-intro">
+    <div class="self-intro-icon">💡</div>
+    <div>
+      <p><strong>Как работает само-оценка.</strong> Для каждой компетенции — 2–3 ситуационных вопроса. Оцените частоту поведения по шкале 1–5 и обязательно приведите конкретный пример из последних 3–6 месяцев. Без примера оценка не засчитывается.<br>
+      <strong>Будьте честны:</strong> само-оценка сравнивается с оценкой руководителя — расхождения в обе стороны становятся темой для разговора, а не основанием для пересмотра грейда.</p>
+    </div>
+  </div>
+
+  <div class="progress-bar" style="border-color:var(--purple-light)">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">Прогресс</div>
+    <div class="progress-track"><div class="progress-fill progress-fill-self" id="self-prog-fill" style="width:0%"></div></div>
+    <div class="progress-count"><span id="self-prog-done">0</span>/9</div>
+    <div class="progress-label" id="self-prog-text">заполните все блоки</div>
+  </div>
+
+  <div id="self-comp-list"></div>
+
+  <div class="general-comment" style="margin-top:.5rem">
+    <label>Что хочу развивать — мои приоритеты роста</label>
+    <textarea id="self-general" placeholder="Что даётся труднее всего? Какие навыки хочу прокачать? Какую поддержку жду от руководителя?"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-purple" onclick="switchTab('gap')">Посмотреть сводку →</button>
+    <button class="btn btn-ghost" onclick="resetSelf()">Сбросить</button>
+  </div>
+</div>
+
+<!-- TAB: GAP -->
+<div class="tab-content" id="tab-content-gap">
+  <div id="gap-panel">
+    <div style="text-align:center;padding:3rem 2rem;color:var(--muted);font-size:14px">
+      <div style="font-size:40px;margin-bottom:1rem">⚖</div>
+      Заполните обе формы, чтобы увидеть сравнение и итоговый грейд
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────
+const comps = [
+  {id:1,code:"PT",name:"Product Thinking & Problem Ownership",sub:"Продуктовое мышление",
+   j:["Понимает задачу и цель, сформулированную руководством","Объясняет, какую проблему решает отдельный функционал","Работает в рамках заданного решения"],
+   m:["Сам формулирует проблему и ожидаемый эффект","Отличает симптом от корневой причины","Предлагает варианты решений"],
+   s:["Формирует problem statement для продукта / направления","Отсекает нерелевантные запросы","Принимает решения в условиях неопределённости"],
+   self_qs:[
+     {q:"Насколько часто вы сами формулируете проблему до того, как к вам приходит запрос?",hint:"Подумайте: кто обычно инициирует постановку задачи — вы или бизнес?"},
+     {q:"Когда вас приходят с готовым решением («сделайте кнопку»), как часто вы возвращаетесь к корневой проблеме?",hint:"Вспомните последний такой случай — что вы сделали?"},
+     {q:"Как часто вы принимаете продуктовое решение, имея менее 70% информации?",hint:"Речь об осознанном решении, а не откладывании до полной ясности"}
+   ]},
+  {id:2,code:"VE",name:"Value & Economics Management",sub:"Экономика продукта",
+   j:["Понимает, что у задач есть стоимость и ценность","Фиксирует ожидаемый эффект (качественно)"],
+   m:["Оценивает экономический эффект (упрощённо)","Сравнивает инициативы между собой","Понимает разницу CAPEX / OPEX / RUN / CHANGE"],
+   s:["Обосновывает приоритеты в деньгах и ресурсах","Защищает решения перед бизнесом","Учитывает TCO и альтернативную стоимость"],
+   self_qs:[
+     {q:"Насколько часто перед включением задачи в backlog вы оцениваете её экономический эффект?",hint:"Хотя бы качественно: дорого/дёшево, важно/не важно по объёму выгоды"},
+     {q:"Как уверенно вы чувствуете себя, объясняя бизнес-заказчику, почему одна задача важнее другой — в терминах денег или ресурсов?",hint:"Не «интуитивно», а именно с аргументами"},
+     {q:"Как часто вы самостоятельно считаете или запрашиваете стоимость разработки и поддержки до принятия решения?",hint:"TCO, стоимость владения, альтернативная стоимость"}
+   ]},
+  {id:3,code:"BL",name:"Backlog & Prioritization Management",sub:"Управление потоком ценности",
+   j:["Ведёт backlog по заданным правилам","Корректно оформляет user stories","Работает с приоритетами, заданными сверху"],
+   m:["Самостоятельно приоритизирует backlog по ценности","Делает качественную декомпозицию","Удерживает фокус команды"],
+   s:["Управляет балансом short / mid / long-term","Работает с конфликтующими приоритетами","Обеспечивает прозрачность планов"],
+   self_qs:[
+     {q:"Кто в вашей команде чаще всего определяет итоговый порядок задач в спринте — вы или руководство / заказчик?",hint:"Честно: насколько вы самостоятельны в приоритизации?"},
+     {q:"Как часто в backlog одновременно присутствуют задачи на текущий спринт, следующий квартал и стратегическое развитие?",hint:"Признак зрелого управления потоком ценности"},
+     {q:"Как часто вы говорите заказчику «нет» или «позже» — и это принимается?",hint:"Не избегание конфликта, а аргументированный отказ"}
+   ]},
+  {id:4,code:"DL",name:"Delivery & Release Management",sub:"Доведение до результата",
+   j:["Готовит задачи к разработке","Участвует в планировании и приёмке","Следит за договорённостями"],
+   m:["Обеспечивает стабильную поставку","Управляет scope в спринте","Работает с зависимостями"],
+   s:["Отвечает за результат релиза","Управляет рисками и изменениями","Стабилизирует delivery в сложных условиях"],
+   self_qs:[
+     {q:"Как часто релизы в вашем продукте выходят в срок и в запланированном объёме?",hint:"Не единичные случаи, а как правило — за последние 3–6 месяцев"},
+     {q:"Насколько вы заблаговременно видите риски, которые могут сорвать поставку?",hint:"Вспомните: вы их предсказывали или они приходили неожиданно?"},
+     {q:"Когда в спринте возникает конфликт объёма — как часто вы принимаете решение о scope самостоятельно?",hint:"Без эскалации к руководству, на основе собственного суждения"}
+   ]},
+  {id:5,code:"SC",name:"Stakeholder & Communication Management",sub:"Работа с бизнесом",
+   j:["Корректно взаимодействует с заказчиками","Передаёт договорённости в команду","Выполняет обязательства"],
+   m:["Самостоятельно ведёт коммуникацию с бизнесом","Управляет ожиданиями","Умеет аргументировать решения"],
+   s:["Работает с руководителями направлений","Управляет конфликтами интересов","Единая точка принятия решений"],
+   self_qs:[
+     {q:"Как часто после встречи с заказчиком вы понимаете, что у него осталось другое ожидание от договорённости?",hint:"Это вопрос про управление ожиданиями — чем реже, тем лучше"},
+     {q:"Насколько комфортно вы себя чувствуете, когда нужно сказать заказчику «нет» с аргументами?",hint:"Не избежать разговора, а провести его и сохранить отношения"},
+     {q:"Как часто два разных заказчика приходят к вам с конфликтующими приоритетами — и вы сами разрешаете конфликт?",hint:"Без вовлечения руководителя"}
+   ]},
+  {id:6,code:"MT",name:"Metrics & Outcome Orientation",sub:"Ориентация на результат",
+   j:["Знает метрики продукта","Отслеживает выполнение задач"],
+   m:["Формулирует метрики успеха","Отличает output от outcome","Анализирует результаты изменений"],
+   s:["Управляет продуктом через метрики","Корректирует backlog по результатам","Связывает метрики с бизнес-целями"],
+   self_qs:[
+     {q:"Перед релизом — всегда ли вы знаете, по какой метрике будете считать его успешным?",hint:"Не «стало лучше», а конкретная цифра до начала разработки"},
+     {q:"Как часто после релиза вы измеряете его реальный эффект и это влияет на следующий приоритет?",hint:"Outcome-driven: результат меняет backlog"},
+     {q:"Как часто вы сами (не по запросу) готовите аналитику по продукту для руководства или бизнеса?",hint:"Проактивное использование данных, а не реактивное"}
+   ]},
+  {id:7,code:"PD",name:"Process & Domain Understanding",sub:"Понимание предметной области",
+   j:["Понимает основные процессы своей зоны","Работает по регламентам"],
+   m:["Глубоко понимает предметную область","Учитывает ограничения и зависимости","Видит влияние изменений на процессы"],
+   s:["Оптимизирует процессы через продукт","Учитывает архитектурный контекст","Работает с legacy осознанно"],
+   self_qs:[
+     {q:"Насколько хорошо вы понимаете сквозной бизнес-процесс, который автоматизирует ваш продукт?",hint:"Не UI, а именно бизнес-операцию от начала до конца — с исключениями и ветками"},
+     {q:"Как часто ваши решения по продукту учитывают смежные системы и ограничения архитектуры?",hint:"Не только «что хочет пользователь», но и «что позволяет система»"},
+     {q:"Когда вы предлагаете изменение, как часто вы предварительно изучаете его влияние на существующие процессы и регламенты?",hint:"Не «потом разберёмся», а осознанное включение контекста до разработки"}
+   ]},
+  {id:8,code:"TW",name:"Product Teamwork & Cooperation",sub:"Командная работа",
+   j:["Участвует в командных обсуждениях","Передаёт договорённости команде","Выполняет командные обязательства"],
+   m:["Инициирует совместную работу","Чётко ставит задачи коллегам","Реалистично планирует ресурсы"],
+   s:["Выстраивает командные процессы","Является проводником культуры","Обосновывает привлечение ресурсов"],
+   self_qs:[
+     {q:"Как часто вы сами инициируете совместные обсуждения или воркшопы с командой, без запроса сверху?",hint:"Проактивность в создании пространства для командной работы"},
+     {q:"Когда вы ставите задачу коллеге — насколько точно он понимает, что именно является успешным результатом?",hint:"Без уточняющих вопросов в процессе — насколько ваши постановки «самодостаточны»?"},
+     {q:"Как часто вы берёте на себя ответственность за провал командного результата, даже если лично свою часть сделали?",hint:"Это про «мы не сделали» vs «я сделал, остальные нет»"}
+   ]},
+  {id:9,code:"SM",name:"Self-management",sub:"Управление собой",
+   j:["Организует время по заданным приоритетам","Выполняет взятые обязательства","Принимает ответственность за результат"],
+   m:["Перестраивает приоритеты при изменении ситуации","Даёт конструктивную обратную связь","Действует проактивно"],
+   s:["Управляет поведением в неопределённости","Несёт ответственность за командный результат","Системно инициирует изменения"],
+   self_qs:[
+     {q:"Когда ситуация резко меняется (новый приоритет, форс-мажор), как быстро вы самостоятельно перестраиваете план?",hint:"Без ожидания инструкции от руководителя"},
+     {q:"Как часто вы даёте коллегам развивающую обратную связь — и получаете её в ответ?",hint:"Не только похвалу, но и конкретную критику с предложением"},
+     {q:"Насколько комфортно вы чувствуете себя, когда долго нет ясности по результату или решению?",hint:"Речь о tolerance for ambiguity — способность работать без полного понимания картины"}
+   ]}
+];
+
+const freqLabels = ["Никогда / крайне редко","Иногда (реже 50%)","Примерно в половине случаев","Часто (>70% случаев)","Почти всегда / всегда"];
+
+// State
+const mgrRatings = {}, mgrComments = {}, selfAnswers = {}, selfExamples = {};
+
+// ─── TABS ───────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['mgr','self','gap'].forEach(t=>{
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
+    document.getElementById(`tab-content-${t}`).classList.toggle('active', t===tab);
+  });
+  if(tab==='gap') renderGap();
+}
+
+// ─── MANAGER TAB ────────────────────────────────────────────────────────
+function renderMgrComp(c) {
+  const div = document.createElement('div');
+  div.className = 'comp-card';
+  div.id = `mcomp-${c.id}`;
+  div.innerHTML = `
+    <div class="comp-header" onclick="toggleCard('mcomp-${c.id}')">
+      <div class="comp-num" id="mnum-${c.id}">${c.id}</div>
+      <div class="comp-info">
+        <div class="comp-code">${c.code}</div>
+        <div class="comp-name">${c.name}</div>
+        <div class="comp-sub">${c.sub}</div>
+      </div>
+      <div><span class="badge badge-none" id="mbadge-${c.id}">не оценено</span></div>
+      <div class="comp-chevron">›</div>
+    </div>
+    <div class="comp-body">
+      <div class="criteria-grid">
+        <div class="criteria-col" id="mcol-j-${c.id}"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body"><ul>${c.j.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+        <div class="criteria-col" id="mcol-m-${c.id}"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body"><ul>${c.m.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+        <div class="criteria-col" id="mcol-s-${c.id}"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body"><ul>${c.s.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+      </div>
+      <div class="rating-row">
+        <span class="rating-label">Оценка:</span>
+        <button class="rating-btn" id="mrb-0-${c.id}" onclick="setMgr(${c.id},0)">✕ Не показывает</button>
+        <button class="rating-btn" id="mrb-1-${c.id}" onclick="setMgr(${c.id},1)">◈ Junior</button>
+        <button class="rating-btn" id="mrb-2-${c.id}" onclick="setMgr(${c.id},2)">◈ Middle</button>
+        <button class="rating-btn" id="mrb-3-${c.id}" onclick="setMgr(${c.id},3)">◈ Senior</button>
+      </div>
+      <div class="comp-comment">
+        <label>Комментарий и наблюдения</label>
+        <textarea placeholder="Конкретные ситуации, поведение, аргументы..." onchange="mgrComments[${c.id}]=this.value"></textarea>
+      </div>
+    </div>`;
+  return div;
+}
+
+function setMgr(id, val) {
+  mgrRatings[id] = val;
+  const lmap = {0:'badge-0',1:'badge-j',2:'badge-m',3:'badge-s'};
+  const tmap = {0:'Не показывает',1:'Junior',2:'Middle',3:'Senior'};
+  const nmap = {0:'',1:'rated-j',2:'rated-m',3:'rated-s'};
+  const smap = {0:'sel-0',1:'sel-j',2:'sel-m',3:'sel-s'};
+  document.getElementById(`mbadge-${id}`).className = `badge ${lmap[val]}`;
+  document.getElementById(`mbadge-${id}`).textContent = tmap[val];
+  document.getElementById(`mnum-${id}`).className = `comp-num ${nmap[val]}`;
+  document.getElementById(`mcomp-${id}`).classList.add('rated');
+  [0,1,2,3].forEach(i=>{
+    const b = document.getElementById(`mrb-${i}-${id}`);
+    if(b) b.className = 'rating-btn'+(i===val?` ${smap[val]}`:'');
+  });
+  ['j','m','s'].forEach((v,i)=>{
+    const col = document.getElementById(`mcol-${v}-${id}`);
+    if(col) col.className = 'criteria-col'+(val===i+1?` active-${v}`:'');
+  });
+  updateMgrProgress();
+}
+
+function updateMgrProgress() {
+  const done = Object.keys(mgrRatings).length;
+  document.getElementById('mgr-prog-fill').style.width = (done/9*100)+'%';
+  document.getElementById('mgr-prog-done').textContent = done;
+  const t = ['заполните все блоки','осталось 8','осталось 7','осталось 6','осталось 5','осталось 4','осталось 3','осталось 2','осталось 1','✓ готово'];
+  document.getElementById('mgr-prog-text').textContent = t[done]||'';
+  const tb = document.getElementById('badge-mgr');
+  tb.textContent = done+'/9'; tb.classList.toggle('show', done>0);
+}
+
+// ─── SELF TAB ───────────────────────────────────────────────────────────
+function renderSelfComp(c) {
+  const div = document.createElement('div');
+  div.className = 'self-card';
+  div.id = `scomp-${c.id}`;
+  const questionsHtml = c.self_qs.map((q,qi)=>`
+    <div class="q-block">
+      <div class="q-label">${qi+1}. ${q.q}</div>
+      <div class="q-hint">${q.hint}</div>
+      <div class="freq-scale" id="freq-${c.id}-${qi}">
+        ${freqLabels.map((l,fi)=>`<button class="freq-btn" onclick="setFreq(${c.id},${qi},${fi+1})" id="fb-${c.id}-${qi}-${fi+1}">${fi+1} — ${l}</button>`).join('')}
+      </div>
+      <div class="example-field">
+        <label>Конкретный пример из практики *</label>
+        <textarea id="ex-${c.id}-${qi}" placeholder="Ситуация, когда это проявилось. Без примера балл не учитывается." onchange="saveExample(${c.id},${qi},this.value)"></textarea>
+      </div>
+    </div>`).join('');
+
+  div.innerHTML = `
+    <div class="self-header" onclick="toggleCard('scomp-${c.id}')">
+      <div class="comp-num" id="snum-${c.id}" style="background:var(--purple-bg);border-color:var(--purple-light);color:var(--purple)">${c.id}</div>
+      <div class="comp-info">
+        <div class="comp-code">${c.code}</div>
+        <div class="comp-name">${c.name}</div>
+        <div class="comp-sub">${c.sub}</div>
+      </div>
+      <div><span class="self-score-badge" id="sbadge-${c.id}">не заполнено</span></div>
+      <div class="comp-chevron">›</div>
+    </div>
+    <div class="self-body">${questionsHtml}</div>`;
+  return div;
+}
+
+function setFreq(cid, qi, val) {
+  if(!selfAnswers[cid]) selfAnswers[cid] = {};
+  selfAnswers[cid][qi] = val;
+  freqLabels.forEach((_,fi)=>{
+    const b = document.getElementById(`fb-${cid}-${qi}-${fi+1}`);
+    if(b) b.className = 'freq-btn'+(fi+1===val?` freq-sel-${val}`:'');
+  });
+  updateSelfBadge(cid);
+  updateSelfProgress();
+}
+
+function saveExample(cid, qi, val) {
+  if(!selfExamples[cid]) selfExamples[cid] = {};
+  selfExamples[cid][qi] = val;
+}
+
+function updateSelfBadge(cid) {
+  const c = comps.find(x=>x.id===cid);
+  const ans = selfAnswers[cid]||{};
+  const filled = Object.keys(ans).length;
+  const badge = document.getElementById(`sbadge-${cid}`);
+  if(filled === 0){badge.textContent='не заполнено';return;}
+  if(filled < c.self_qs.length){badge.textContent=`${filled}/${c.self_qs.length} вопросов`;return;}
+  const avg = Object.values(ans).reduce((a,b)=>a+b,0)/filled;
+  badge.textContent = `Среднее: ${avg.toFixed(1)}/5`;
+  document.getElementById(`scomp-${cid}`).classList.add('filled');
+}
+
+function getSelfScore(cid) {
+  const c = comps.find(x=>x.id===cid);
+  const ans = selfAnswers[cid]||{};
+  if(Object.keys(ans).length < c.self_qs.length) return null;
+  return Object.values(ans).reduce((a,b)=>a+b,0)/c.self_qs.length;
+}
+
+function selfScoreTo3(avg5) {
+  if(avg5 === null) return null;
+  return (avg5 - 1) / 4 * 3;
+}
+
+function updateSelfProgress() {
+  const done = comps.filter(c=>{
+    const ans = selfAnswers[c.id]||{};
+    return Object.keys(ans).length >= c.self_qs.length;
+  }).length;
+  document.getElementById('self-prog-fill').style.width=(done/9*100)+'%';
+  document.getElementById('self-prog-done').textContent=done;
+  const t=['заполните все блоки','осталось 8','осталось 7','осталось 6','осталось 5','осталось 4','осталось 3','осталось 2','осталось 1','✓ готово'];
+  document.getElementById('self-prog-text').textContent=t[done]||'';
+  const tb = document.getElementById('badge-self');
+  tb.textContent=done+'/9'; tb.classList.toggle('show',done>0);
+}
+
+// ─── TOGGLE CARDS ───────────────────────────────────────────────────────
+function toggleCard(id) {
+  const c = document.getElementById(id);
+  c.classList.toggle('open');
+}
+
+// ─── GAP / SUMMARY ──────────────────────────────────────────────────────
+function getGradeInfo(avg) {
+  if(avg >= 2.4) return {label:"Senior",cls:"grade-s",fcls:"fill-s"};
+  if(avg >= 1.6) return {label:"Middle",cls:"grade-m",fcls:"fill-m"};
+  if(avg >= 0.8) return {label:"Junior",cls:"grade-j",fcls:"fill-j"};
+  return {label:"Ниже Junior",cls:"grade-nd",fcls:"fill-nd"};
+}
+
+function getSummaryText(avg, ratedCount) {
+  if(ratedCount < 9) return "";
+  if(avg >= 2.4) return "Кандидат уверенно демонстрирует уровень Senior: формирует продуктовую повестку, работает в условиях неопределённости, управляет через метрики. Готов к лидерской роли в кластере.";
+  if(avg >= 1.9) return "Уверенный Middle с потенциалом роста. Самостоятельно ведёт продукт, работает с бизнесом и командой. Точечный рост в 2–3 зонах откроет путь к Senior.";
+  if(avg >= 1.6) return "Переходный уровень Middle. Необходимо усиление самостоятельности в приоритизации и работе с метриками. Рекомендуется план развития на 3–6 месяцев.";
+  if(avg >= 0.8) return "Junior: выполняет задачи в рамках заданного контекста, работает по установленным процессам. Требуется развитие самостоятельности и продуктового мышления.";
+  return "Ниже уровня Junior. Рекомендуется базовое обучение и повторный ассесмент через 2–3 месяца.";
+}
+
+function renderGap() {
+  const mgrDone = Object.keys(mgrRatings).length;
+  const selfDone = comps.filter(c=>{const a=selfAnswers[c.id]||{};return Object.keys(a).length>=c.self_qs.length;}).length;
+  const panel = document.getElementById('gap-panel');
+
+  if(mgrDone === 0 && selfDone === 0) {
+    panel.innerHTML = `<div style="text-align:center;padding:3rem 2rem;color:var(--muted);font-size:14px"><div style="font-size:40px;margin-bottom:1rem">⚖</div>Заполните обе формы, чтобы увидеть сравнение</div>`;
+    return;
+  }
+
+  // MGR result
+  let mgrHtml = '', mgrAvg = null;
+  if(mgrDone > 0) {
+    const total = Object.values(mgrRatings).reduce((a,b)=>a+b,0);
+    mgrAvg = total/mgrDone;
+    const gi = getGradeInfo(mgrAvg);
+    mgrHtml = `
+      <div class="summary-box">
+        <h3>Оценка руководителя (${mgrDone}/9 компетенций)</h3>
+        <div class="grade-row">
+          <div class="grade-badge-lg ${gi.cls}">${gi.label}</div>
+          <div class="grade-score-wrap">Средний балл: <span class="grade-score-big">${mgrAvg.toFixed(2)}</span> <span style="font-size:13px;color:var(--muted)">из 3.0</span></div>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">${getSummaryText(mgrAvg, mgrDone)}</p>
+        ${mgrDone===9?`<div style="margin-top:.875rem">${comps.map(c=>{const r=mgrRatings[c.id];if(r===undefined)return'';const gi2=getGradeInfo(r);const pct=(r/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill ${gi2.fcls}" style="width:${pct}%"></div></div><div class="score-val">${['—','Junior','Middle','Senior'][r]}</div></div>`}).join('')}</div>`:''}
+      </div>`;
+  }
+
+  // SELF result
+  let selfHtml = '', selfAvg = null;
+  const selfScores = comps.map(c=>selfScoreTo3(getSelfScore(c.id)));
+  const selfValid = selfScores.filter(s=>s!==null);
+  if(selfValid.length > 0) {
+    selfAvg = selfValid.reduce((a,b)=>a+b,0)/selfValid.length;
+    const gi = getGradeInfo(selfAvg);
+    selfHtml = `
+      <div class="summary-box" style="border-color:var(--purple-light);background:var(--purple-bg)">
+        <h3 style="color:var(--purple)">Само-оценка (${selfValid.length}/9 компетенций)</h3>
+        <div class="grade-row">
+          <div class="grade-badge-lg ${gi.cls}">${gi.label}</div>
+          <div class="grade-score-wrap">Средний балл: <span class="grade-score-big">${selfAvg.toFixed(2)}</span> <span style="font-size:13px;color:var(--muted)">из 3.0</span></div>
+        </div>
+        ${selfValid.length===9?`<div style="margin-top:.875rem">${comps.map((c,i)=>{const s=selfScores[i];if(s===null)return'';const pct=(s/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill fill-self" style="width:${pct}%"></div></div><div class="score-val">${(getSelfScore(c.id)||0).toFixed(1)}/5</div></div>`}).join('')}</div>`:''}
+      </div>`;
+  }
+
+  // GAP analysis
+  let gapHtml = '';
+  if(mgrDone === 9 && selfValid.length === 9) {
+    const diffStr = (mgrAvg - selfAvg).toFixed(2);
+    const absDiff = Math.abs(mgrAvg - selfAvg);
+    let gapInterpret = '';
+    if(absDiff < 0.3) gapInterpret = `Само-оценка и оценка руководителя совпадают (расхождение ${diffStr}). Высокий уровень рефлексии и самоосознанности.`;
+    else if(mgrAvg > selfAvg) gapInterpret = `Руководитель оценивает выше само-оценки (+${diffStr}). Сотрудник может недооценивать свои сильные стороны. Стоит обсудить, в чём проявляется неуверенность.`;
+    else gapInterpret = `Само-оценка выше оценки руководителя на ${(-diffStr)}. Возможна переоценка компетенций — хорошая точка входа для развивающего диалога.`;
+
+    const rowsHtml = comps.map((c,i)=>{
+      const m = mgrRatings[c.id]||0;
+      const s = selfScoreTo3(getSelfScore(c.id))||0;
+      const diff = s - m;
+      const pct = Math.abs(diff)/3*100;
+      const isOver = diff > 0.2;
+      const isUnder = diff < -0.2;
+      const cls = isOver ? 'gap-fill-over' : isUnder ? 'gap-fill-under' : 'gap-fill-match';
+      const lcls = isOver ? 'gap-over' : isUnder ? 'gap-under' : 'gap-match';
+      const ltext = isOver ? `+${diff.toFixed(1)}` : isUnder ? diff.toFixed(1) : '≈';
+      const leftPct = diff < 0 ? (50 - pct/2) : 50;
+      const fillStyle = diff < 0
+        ? `left:${leftPct}%;width:${pct/2}%`
+        : diff > 0 ? `left:50%;width:${pct/2}%` : `left:49%;width:2%`;
+      return `<div class="gap-row">
+        <div class="gap-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div>
+        <div class="gap-bar-wrap"><div class="gap-center"></div><div class="gap-fill ${cls}" style="${fillStyle}"></div></div>
+        <div class="gap-label ${lcls}">${ltext}</div>
+      </div>`;
+    }).join('');
+
+    gapHtml = `
+      <div class="gap-section">
+        <h3>Анализ расхождений (само-оценка минус оценка руководителя)</h3>
+        <div class="legend" style="margin-bottom:1rem">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Завышена само-оценка</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Занижена само-оценка</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Совпадение</div>
+        </div>
+        ${rowsHtml}
+        <div class="summary-box" style="margin-top:1rem;border-color:var(--blue-light)">
+          <h3>Интерпретация расхождений</h3>
+          <p>${gapInterpret}</p>
+        </div>
+      </div>`;
+  }
+
+  // Flags
+  let flagsHtml = '';
+  if(mgrDone > 0) {
+    const zeros = comps.filter(c=>mgrRatings[c.id]===0).map(c=>c.name);
+    if(zeros.length > 0) flagsHtml = `<div class="summary-box" style="border-color:var(--red-light);background:var(--red-bg)"><h3 style="color:var(--red)">Зоны критического внимания</h3><p style="font-size:13px;color:var(--red)"><strong>${zeros.join('; ')}</strong> — оценка «не показывает», приоритет для ИПР.</p></div>`;
+  }
+
+  panel.innerHTML = mgrHtml + selfHtml + gapHtml + flagsHtml +
+    `<div class="actions"><button class="btn btn-primary" onclick="window.print()">Печать / PDF</button></div>`;
+
+  document.getElementById('badge-gap').textContent = (mgrDone===9&&selfValid.length===9)?'✓':'';
+  document.getElementById('badge-gap').classList.toggle('show', mgrDone===9&&selfValid.length===9);
+}
+
+// ─── RESET ───────────────────────────────────────────────────────────────
+function resetMgr() {
+  if(!confirm('Сбросить оценку руководителя?')) return;
+  comps.forEach(c=>{
+    delete mgrRatings[c.id];
+    delete mgrComments[c.id];
+    const card = document.getElementById(`mcomp-${c.id}`);
+    card.classList.remove('rated','open');
+    document.getElementById(`mbadge-${c.id}`).className='badge badge-none';
+    document.getElementById(`mbadge-${c.id}`).textContent='не оценено';
+    document.getElementById(`mnum-${c.id}`).className='comp-num';
+    [0,1,2,3].forEach(i=>{const b=document.getElementById(`mrb-${i}-${c.id}`);if(b)b.className='rating-btn';});
+    ['j','m','s'].forEach(v=>{const col=document.getElementById(`mcol-${v}-${c.id}`);if(col)col.className='criteria-col';});
+    const ta=card.querySelector('textarea');if(ta)ta.value='';
+  });
+  document.getElementById('mgr-general').value='';
+  updateMgrProgress();
+}
+
+function resetSelf() {
+  if(!confirm('Сбросить само-оценку?')) return;
+  comps.forEach(c=>{
+    delete selfAnswers[c.id];
+    delete selfExamples[c.id];
+    const card = document.getElementById(`scomp-${c.id}`);
+    card.classList.remove('filled','open');
+    document.getElementById(`sbadge-${c.id}`).textContent='не заполнено';
+    c.self_qs.forEach((_,qi)=>{
+      freqLabels.forEach((_,fi)=>{const b=document.getElementById(`fb-${c.id}-${qi}-${fi+1}`);if(b)b.className='freq-btn';});
+      const ta=document.getElementById(`ex-${c.id}-${qi}`);if(ta)ta.value='';
+    });
+  });
+  document.getElementById('self-general').value='';
+  updateSelfProgress();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+const mgrList = document.getElementById('mgr-comp-list');
+const selfList = document.getElementById('self-comp-list');
+comps.forEach(c=>{mgrList.appendChild(renderMgrComp(c));selfList.appendChild(renderSelfComp(c));});
+document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
