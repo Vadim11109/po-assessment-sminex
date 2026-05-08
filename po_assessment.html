@@ -74,7 +74,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .badge-s{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-light)}
 .badge-0{background:var(--red-bg);color:var(--red);border-color:var(--red-light)}
 .comp-chevron{color:var(--hint);font-size:16px;transition:transform .2s;flex-shrink:0}
-.comp-card.open .comp-chevron{transform:rotate(90deg)}
+.comp-card.open > .comp-header > .comp-chevron{transform:rotate(90deg)}
 .comp-body{display:none;border-top:1px solid var(--border);padding:1.25rem 1.5rem}
 .comp-card.open .comp-body{display:block}
 
@@ -105,6 +105,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .comp-comment label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
 .comp-comment textarea{width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit;resize:vertical;min-height:54px;line-height:1.5}
 .comp-comment textarea:focus{border-color:var(--blue);background:var(--surface)}
+
+/* Sub-items */
+.sub-item{border:1px solid var(--border);border-radius:8px;margin-bottom:.5rem;overflow:hidden}
+.sub-header{padding:.5rem .875rem;display:flex;align-items:center;gap:.625rem;cursor:pointer;user-select:none}
+.sub-header:hover{background:var(--surface2)}
+.sub-num{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0}
+.sub-name{flex:1;font-size:13px;font-weight:600;color:var(--text)}
+.sub-body{display:none;padding:.75rem .875rem;border-top:1px solid var(--border);background:var(--surface2)}
+.sub-item.open .sub-body{display:block}
+.sub-item.open > .sub-header > .comp-chevron{transform:rotate(90deg)}
+.sub-summary{padding:.75rem 0;margin-top:.25rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
 
 /* ===== SELF-ASSESSMENT ===== */
 .self-intro{background:var(--purple-bg);border:1px solid var(--purple-light);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start}
@@ -351,9 +362,32 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 // ─── DATA ───────────────────────────────────────────────────────────────
 const comps = [
   {id:1,code:"PT",name:"Product Thinking & Problem Ownership",sub:"Продуктовое мышление",
-   j:["Понимает задачу и цель, сформулированную руководством","Объясняет, какую проблему решает отдельный функционал","Работает в рамках заданного решения"],
-   m:["Сам формулирует проблему и ожидаемый эффект","Отличает симптом от корневой причины","Предлагает варианты решений"],
-   s:["Формирует problem statement для продукта / направления","Отсекает нерелевантные запросы","Принимает решения в условиях неопределённости"],
+   subs:[
+     {name:"Формулировка проблемы",
+      j:"Понимает проблему, когда её сформулировал руководитель или заказчик",
+      m:"Сам формулирует проблему и ожидаемый эффект до начала работы",
+      s:"Формирует problem statement на уровне продукта/направления, связывает с бизнес-целями"},
+     {name:"Анализ корневых причин",
+      j:"Работает с запросом как есть, решает то, что поставили",
+      m:"Отличает симптом от корневой причины, задаёт уточняющие вопросы",
+      s:"Системно анализирует причины, выявляет паттерны повторяющихся проблем"},
+     {name:"Генерация и оценка решений",
+      j:"Работает в рамках заданного решения, реализует то, что предложили",
+      m:"Предлагает 2–3 варианта решения, сравнивает по effort/impact",
+      s:"Оценивает решения с учётом архитектуры, масштабируемости и стратегии продукта"},
+     {name:"Принятие решений в неопределённости",
+      j:"Эскалирует решения при нехватке информации, ждёт указаний",
+      m:"Принимает решения при 60–70% информации, осознанно фиксирует допущения",
+      s:"Уверенно действует в условиях высокой неопределённости, управляет рисками решений"},
+     {name:"Фильтрация и фокус",
+      j:"Берёт в работу задачи по приоритету руководителя",
+      m:"Самостоятельно фильтрует входящие запросы, аргументированно говорит «нет» или «позже»",
+      s:"Защищает фокус продукта на уровне стейкхолдеров, отсекает стратегически нерелевантное"},
+     {name:"Продуктовое видение",
+      j:"Понимает, какую проблему решает конкретный функционал",
+      m:"Видит связь между фичами и целями продукта, объясняет «зачем»",
+      s:"Формирует и транслирует видение продукта, все решения вытекают из единой стратегии"}
+   ],
    self_qs:[
      {q:"Насколько часто вы сами формулируете проблему до того, как к вам приходит запрос?",hint:"Подумайте: кто обычно инициирует постановку задачи — вы или бизнес?"},
      {q:"Когда вас приходят с готовым решением («сделайте кнопку»), как часто вы возвращаетесь к корневой проблеме?",hint:"Вспомните последний такой случай — что вы сделали?"},
@@ -436,7 +470,7 @@ const comps = [
 const freqLabels = ["Никогда / крайне редко","Иногда (реже 50%)","Примерно в половине случаев","Часто (>70% случаев)","Почти всегда / всегда"];
 
 // State
-const mgrRatings = {}, mgrComments = {}, selfAnswers = {}, selfExamples = {};
+const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, selfAnswers = {}, selfExamples = {};
 
 // ─── TABS ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -452,6 +486,50 @@ function renderMgrComp(c) {
   const div = document.createElement('div');
   div.className = 'comp-card';
   div.id = `mcomp-${c.id}`;
+  let bodyInner;
+  if(c.subs) {
+    bodyInner = c.subs.map((s,si)=>`
+      <div class="sub-item" id="msub-${c.id}-${si}">
+        <div class="sub-header" onclick="toggleCard('msub-${c.id}-${si}')">
+          <div class="sub-num">${si+1}</div>
+          <div class="sub-name">${s.name}</div>
+          <span class="badge badge-none" id="msubbadge-${c.id}-${si}">—</span>
+          <div class="comp-chevron">›</div>
+        </div>
+        <div class="sub-body">
+          <div class="criteria-grid">
+            <div class="criteria-col" id="msubcol-j-${c.id}-${si}"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body">${s.j}</div></div>
+            <div class="criteria-col" id="msubcol-m-${c.id}-${si}"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body">${s.m}</div></div>
+            <div class="criteria-col" id="msubcol-s-${c.id}-${si}"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body">${s.s}</div></div>
+          </div>
+          <div class="rating-row">
+            <span class="rating-label">Оценка:</span>
+            <button class="rating-btn" id="msrb-0-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},0)">✕ Не показывает</button>
+            <button class="rating-btn" id="msrb-1-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},1)">◈ Junior</button>
+            <button class="rating-btn" id="msrb-2-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},2)">◈ Middle</button>
+            <button class="rating-btn" id="msrb-3-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},3)">◈ Senior</button>
+          </div>
+        </div>
+      </div>`).join('')+`
+      <div class="sub-summary" id="msub-summary-${c.id}">
+        <span class="rating-label">Итого по компетенции:</span>
+        <span class="badge badge-none" id="msub-total-${c.id}">оцените все пункты</span>
+      </div>`;
+  } else {
+    bodyInner = `
+      <div class="criteria-grid">
+        <div class="criteria-col" id="mcol-j-${c.id}"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body"><ul>${c.j.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+        <div class="criteria-col" id="mcol-m-${c.id}"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body"><ul>${c.m.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+        <div class="criteria-col" id="mcol-s-${c.id}"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body"><ul>${c.s.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+      </div>
+      <div class="rating-row">
+        <span class="rating-label">Оценка:</span>
+        <button class="rating-btn" id="mrb-0-${c.id}" onclick="setMgr(${c.id},0)">✕ Не показывает</button>
+        <button class="rating-btn" id="mrb-1-${c.id}" onclick="setMgr(${c.id},1)">◈ Junior</button>
+        <button class="rating-btn" id="mrb-2-${c.id}" onclick="setMgr(${c.id},2)">◈ Middle</button>
+        <button class="rating-btn" id="mrb-3-${c.id}" onclick="setMgr(${c.id},3)">◈ Senior</button>
+      </div>`;
+  }
   div.innerHTML = `
     <div class="comp-header" onclick="toggleCard('mcomp-${c.id}')">
       <div class="comp-num" id="mnum-${c.id}">${c.id}</div>
@@ -464,18 +542,7 @@ function renderMgrComp(c) {
       <div class="comp-chevron">›</div>
     </div>
     <div class="comp-body">
-      <div class="criteria-grid">
-        <div class="criteria-col" id="mcol-j-${c.id}"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body"><ul>${c.j.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
-        <div class="criteria-col" id="mcol-m-${c.id}"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body"><ul>${c.m.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
-        <div class="criteria-col" id="mcol-s-${c.id}"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body"><ul>${c.s.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
-      </div>
-      <div class="rating-row">
-        <span class="rating-label">Оценка:</span>
-        <button class="rating-btn" id="mrb-0-${c.id}" onclick="setMgr(${c.id},0)">✕ Не показывает</button>
-        <button class="rating-btn" id="mrb-1-${c.id}" onclick="setMgr(${c.id},1)">◈ Junior</button>
-        <button class="rating-btn" id="mrb-2-${c.id}" onclick="setMgr(${c.id},2)">◈ Middle</button>
-        <button class="rating-btn" id="mrb-3-${c.id}" onclick="setMgr(${c.id},3)">◈ Senior</button>
-      </div>
+      ${bodyInner}
       <div class="comp-comment">
         <label>Комментарий и наблюдения</label>
         <textarea placeholder="Конкретные ситуации, поведение, аргументы..." onchange="mgrComments[${c.id}]=this.value"></textarea>
@@ -505,8 +572,64 @@ function setMgr(id, val) {
   updateMgrProgress();
 }
 
+function setMgrSub(cid, si, val) {
+  mgrSubRatings[`${cid}-${si}`] = val;
+  const lmap = {0:'badge-0',1:'badge-j',2:'badge-m',3:'badge-s'};
+  const tmap = {0:'✕',1:'J',2:'M',3:'S'};
+  const smap = {0:'sel-0',1:'sel-j',2:'sel-m',3:'sel-s'};
+  const badge = document.getElementById(`msubbadge-${cid}-${si}`);
+  if(badge){badge.className=`badge ${lmap[val]}`;badge.textContent=tmap[val];}
+  [0,1,2,3].forEach(i=>{
+    const b = document.getElementById(`msrb-${i}-${cid}-${si}`);
+    if(b) b.className = 'rating-btn'+(i===val?` ${smap[val]}`:'');
+  });
+  ['j','m','s'].forEach((v,i)=>{
+    const col = document.getElementById(`msubcol-${v}-${cid}-${si}`);
+    if(col) col.className = 'criteria-col'+(val===i+1?` active-${v}`:'');
+  });
+  const c = comps.find(x=>x.id===cid);
+  const rated = c.subs.filter((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined).length;
+  const compBadge = document.getElementById(`mbadge-${cid}`);
+  const numEl = document.getElementById(`mnum-${cid}`);
+  const totalBadge = document.getElementById(`msub-total-${cid}`);
+  if(rated === c.subs.length){
+    const avg = c.subs.reduce((sum,_,i)=>sum+mgrSubRatings[`${cid}-${i}`],0)/c.subs.length;
+    const gi = getGradeInfo(avg);
+    const bcls = gi.label==='Senior'?'s':gi.label==='Middle'?'m':gi.label==='Junior'?'j':'0';
+    const ncls = gi.label==='Senior'?'rated-s':gi.label==='Middle'?'rated-m':gi.label==='Junior'?'rated-j':'';
+    compBadge.className = `badge badge-${bcls}`;
+    compBadge.textContent = `${gi.label} (${avg.toFixed(1)})`;
+    numEl.className = `comp-num ${ncls}`;
+    document.getElementById(`mcomp-${cid}`).classList.add('rated');
+    totalBadge.className = `badge badge-${bcls}`;
+    totalBadge.textContent = `${gi.label} (${avg.toFixed(1)})`;
+  } else {
+    compBadge.className = 'badge badge-none';
+    compBadge.textContent = `${rated}/${c.subs.length}`;
+    numEl.className = 'comp-num';
+    totalBadge.className = 'badge badge-none';
+    totalBadge.textContent = `${rated}/${c.subs.length} оценено`;
+  }
+  updateMgrProgress();
+}
+
+function getMgrScore(cid) {
+  const c = comps.find(x=>x.id===cid);
+  if(c.subs) {
+    if(!c.subs.every((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined)) return undefined;
+    return c.subs.reduce((sum,_,i)=>sum+mgrSubRatings[`${cid}-${i}`],0)/c.subs.length;
+  }
+  return mgrRatings[cid];
+}
+
+function isMgrCompDone(cid) {
+  const c = comps.find(x=>x.id===cid);
+  if(c.subs) return c.subs.every((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined);
+  return mgrRatings[cid]!==undefined;
+}
+
 function updateMgrProgress() {
-  const done = Object.keys(mgrRatings).length;
+  const done = comps.filter(c=>isMgrCompDone(c.id)).length;
   document.getElementById('mgr-prog-fill').style.width = (done/9*100)+'%';
   document.getElementById('mgr-prog-done').textContent = done;
   const t = ['заполните все блоки','осталось 8','осталось 7','осталось 6','осталось 5','осталось 4','осталось 3','осталось 2','осталось 1','✓ готово'];
@@ -625,7 +748,7 @@ function getSummaryText(avg, ratedCount) {
 }
 
 function renderGap() {
-  const mgrDone = Object.keys(mgrRatings).length;
+  const mgrDone = comps.filter(c=>isMgrCompDone(c.id)).length;
   const selfDone = comps.filter(c=>{const a=selfAnswers[c.id]||{};return Object.keys(a).length>=c.self_qs.length;}).length;
   const panel = document.getElementById('gap-panel');
 
@@ -637,8 +760,8 @@ function renderGap() {
   // MGR result
   let mgrHtml = '', mgrAvg = null;
   if(mgrDone > 0) {
-    const total = Object.values(mgrRatings).reduce((a,b)=>a+b,0);
-    mgrAvg = total/mgrDone;
+    const mgrScores = comps.map(c=>getMgrScore(c.id)).filter(s=>s!==undefined);
+    mgrAvg = mgrScores.reduce((a,b)=>a+b,0)/mgrScores.length;
     const gi = getGradeInfo(mgrAvg);
     mgrHtml = `
       <div class="summary-box">
@@ -648,7 +771,7 @@ function renderGap() {
           <div class="grade-score-wrap">Средний балл: <span class="grade-score-big">${mgrAvg.toFixed(2)}</span> <span style="font-size:13px;color:var(--muted)">из 3.0</span></div>
         </div>
         <p style="font-size:13px;color:var(--muted)">${getSummaryText(mgrAvg, mgrDone)}</p>
-        ${mgrDone===9?`<div style="margin-top:.875rem">${comps.map(c=>{const r=mgrRatings[c.id];if(r===undefined)return'';const gi2=getGradeInfo(r);const pct=(r/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill ${gi2.fcls}" style="width:${pct}%"></div></div><div class="score-val">${['—','Junior','Middle','Senior'][r]}</div></div>`}).join('')}</div>`:''}
+        ${mgrDone===9?`<div style="margin-top:.875rem">${comps.map(c=>{const r=getMgrScore(c.id);if(r===undefined)return'';const gi2=getGradeInfo(r);const pct=(r/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill ${gi2.fcls}" style="width:${pct}%"></div></div><div class="score-val">${gi2.label}</div></div>`}).join('')}</div>`:''}
       </div>`;
   }
 
@@ -681,7 +804,7 @@ function renderGap() {
     else gapInterpret = `Само-оценка выше оценки руководителя на ${(-diffStr)}. Возможна переоценка компетенций — хорошая точка входа для развивающего диалога.`;
 
     const rowsHtml = comps.map((c,i)=>{
-      const m = mgrRatings[c.id]||0;
+      const m = getMgrScore(c.id)||0;
       const s = selfScoreTo3(getSelfScore(c.id))||0;
       const diff = s - m;
       const pct = Math.abs(diff)/3*100;
@@ -720,7 +843,7 @@ function renderGap() {
   // Flags
   let flagsHtml = '';
   if(mgrDone > 0) {
-    const zeros = comps.filter(c=>mgrRatings[c.id]===0).map(c=>c.name);
+    const zeros = comps.filter(c=>getMgrScore(c.id)===0).map(c=>c.name);
     if(zeros.length > 0) flagsHtml = `<div class="summary-box" style="border-color:var(--red-light);background:var(--red-bg)"><h3 style="color:var(--red)">Зоны критического внимания</h3><p style="font-size:13px;color:var(--red)"><strong>${zeros.join('; ')}</strong> — оценка «не показывает», приоритет для ИПР.</p></div>`;
   }
 
@@ -737,14 +860,28 @@ function resetMgr() {
   comps.forEach(c=>{
     delete mgrRatings[c.id];
     delete mgrComments[c.id];
+    if(c.subs) {
+      c.subs.forEach((_,si)=>{
+        delete mgrSubRatings[`${c.id}-${si}`];
+        const sub = document.getElementById(`msub-${c.id}-${si}`);
+        if(sub) sub.classList.remove('open');
+        const sbadge = document.getElementById(`msubbadge-${c.id}-${si}`);
+        if(sbadge){sbadge.className='badge badge-none';sbadge.textContent='—';}
+        [0,1,2,3].forEach(i=>{const b=document.getElementById(`msrb-${i}-${c.id}-${si}`);if(b)b.className='rating-btn';});
+        ['j','m','s'].forEach(v=>{const col=document.getElementById(`msubcol-${v}-${c.id}-${si}`);if(col)col.className='criteria-col';});
+      });
+      const tb=document.getElementById(`msub-total-${c.id}`);
+      if(tb){tb.className='badge badge-none';tb.textContent='оцените все пункты';}
+    } else {
+      [0,1,2,3].forEach(i=>{const b=document.getElementById(`mrb-${i}-${c.id}`);if(b)b.className='rating-btn';});
+      ['j','m','s'].forEach(v=>{const col=document.getElementById(`mcol-${v}-${c.id}`);if(col)col.className='criteria-col';});
+    }
     const card = document.getElementById(`mcomp-${c.id}`);
     card.classList.remove('rated','open');
     document.getElementById(`mbadge-${c.id}`).className='badge badge-none';
     document.getElementById(`mbadge-${c.id}`).textContent='не оценено';
     document.getElementById(`mnum-${c.id}`).className='comp-num';
-    [0,1,2,3].forEach(i=>{const b=document.getElementById(`mrb-${i}-${c.id}`);if(b)b.className='rating-btn';});
-    ['j','m','s'].forEach(v=>{const col=document.getElementById(`mcol-${v}-${c.id}`);if(col)col.className='criteria-col';});
-    const ta=card.querySelector('textarea');if(ta)ta.value='';
+    const ta=card.querySelector('.comp-comment textarea');if(ta)ta.value='';
   });
   document.getElementById('mgr-general').value='';
   updateMgrProgress();
