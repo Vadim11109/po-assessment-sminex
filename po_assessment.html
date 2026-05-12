@@ -161,10 +161,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .self-sub-section{background:var(--surface2);border-radius:8px;padding:.875rem 1rem;margin-bottom:1rem}
 .self-sub-section-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
 .self-sub-list{margin-bottom:.875rem}
-.self-sub-row{display:flex;align-items:center;gap:.75rem;padding:.375rem 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.self-sub-row{padding:.375rem 0;border-bottom:1px solid var(--border)}
 .self-sub-row:last-child{border-bottom:none;padding-bottom:0}
-.self-sub-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:140px}
+.self-sub-header{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.self-sub-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:140px;cursor:pointer}
 .self-sub-btns{display:flex;gap:4px;flex-wrap:wrap}
+.self-sub-chevron{color:var(--hint);font-size:16px;cursor:pointer;transition:transform .2s;flex-shrink:0}
+.self-sub-row.open .self-sub-chevron{transform:rotate(90deg)}
+.self-sub-criteria{display:none;padding:.625rem 0 .125rem}
+.self-sub-row.open .self-sub-criteria{display:block}
+.self-criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+.self-criteria-col{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--muted);line-height:1.5;background:var(--surface)}
 .self-qs-section{border-top:2px dashed var(--border);padding-top:1rem;margin-top:.5rem}
 .self-qs-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.875rem}
 
@@ -817,12 +824,22 @@ function renderSelfComp(c) {
       <div class="self-sub-list">
         ${c.subs.map((s,si)=>`
           <div class="self-sub-row" id="ssub-${c.id}-${si}">
-            <div class="self-sub-name">${si+1}. ${s.name}</div>
-            <div class="self-sub-btns">
-              <button class="rating-btn" id="ssrb-0-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},0)">✕ Не показываю</button>
-              <button class="rating-btn" id="ssrb-1-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},1)">◈ Junior</button>
-              <button class="rating-btn" id="ssrb-2-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},2)">◈ Middle</button>
-              <button class="rating-btn" id="ssrb-3-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},3)">◈ Senior</button>
+            <div class="self-sub-header">
+              <div class="self-sub-name" onclick="toggleCard('ssub-${c.id}-${si}')">${si+1}. ${s.name}</div>
+              <div class="self-sub-btns">
+                <button class="rating-btn" id="ssrb-0-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},0)">✕ Не показываю</button>
+                <button class="rating-btn" id="ssrb-1-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},1)">◈ Junior</button>
+                <button class="rating-btn" id="ssrb-2-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},2)">◈ Middle</button>
+                <button class="rating-btn" id="ssrb-3-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},3)">◈ Senior</button>
+              </div>
+              <div class="self-sub-chevron" onclick="toggleCard('ssub-${c.id}-${si}')">›</div>
+            </div>
+            <div class="self-sub-criteria">
+              <div class="self-criteria-grid">
+                <div class="self-criteria-col">${s.j}</div>
+                <div class="self-criteria-col">${s.m}</div>
+                <div class="self-criteria-col">${s.s}</div>
+              </div>
             </div>
           </div>`).join('')}
       </div>
