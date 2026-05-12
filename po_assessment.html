@@ -80,7 +80,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 /* Criteria grid */
 .criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.625rem;margin-bottom:1rem}
-.criteria-col{border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.criteria-col{border-radius:8px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s}
+.criteria-col:hover{border-color:var(--border2)}
 .criteria-col.active-j{border-color:var(--blue);border-width:2px}
 .criteria-col.active-m{border-color:var(--green);border-width:2px}
 .criteria-col.active-s{border-color:var(--amber);border-width:2px}
@@ -158,18 +159,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .self-score-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--purple-light);background:var(--purple-bg);color:var(--purple)}
 
 /* Self sub-items */
-.self-sub-section{background:var(--surface2);border-radius:8px;padding:.875rem 1rem;margin-bottom:1rem}
-.self-sub-section-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
-.self-sub-list{margin-bottom:.875rem}
-.self-sub-row{padding:.625rem 0;border-bottom:1px solid var(--border)}
+.self-sub-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.self-sub-section-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hint);margin-bottom:1rem}
+.self-sub-list{margin-bottom:1.25rem}
+.self-sub-row{padding:1rem 0;border-bottom:1px solid var(--border)}
 .self-sub-row:last-child{border-bottom:none;padding-bottom:0}
-.self-sub-header{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.5rem}
-.self-sub-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:140px}
-.self-sub-btns{display:flex;gap:4px;flex-wrap:wrap}
-.self-criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
-.self-criteria-col{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--muted);line-height:1.5;background:var(--surface)}
-.self-qs-section{border-top:2px dashed var(--border);padding-top:1rem;margin-top:.5rem}
-.self-qs-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.875rem}
+.self-sub-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
+.self-sub-name{font-size:13px;font-weight:600;color:var(--text);flex:1;min-width:160px}
+.self-criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.625rem}
+.self-criteria-col{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.55;background:var(--surface2);cursor:pointer;transition:all .15s}
+.self-criteria-col:hover{border-color:var(--border2);background:var(--surface);color:var(--text)}
+.self-criteria-col.sel-j{background:var(--blue-bg);border-color:var(--blue);color:var(--text)}
+.self-criteria-col.sel-m{background:var(--green-bg);border-color:var(--green);color:var(--text)}
+.self-criteria-col.sel-s{background:var(--amber-bg);border-color:var(--amber);color:var(--text)}
+.self-qs-section{border-top:1px solid var(--border);padding-top:1.25rem;margin-top:1rem}
+.self-qs-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hint);margin-bottom:1rem}
 
 /* ===== RESULTS ===== */
 .results{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.75rem 2rem;margin-top:1.25rem;display:none}
@@ -324,8 +328,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <textarea id="mgr-general" placeholder="Общие наблюдения, рекомендации, план развития..."></textarea>
   </div>
   <div class="actions">
-    <button class="btn btn-primary" onclick="window.print()">Печать / PDF</button>
-    <button class="btn btn-ghost" onclick="resetMgr()">Сбросить</button>
+    <button class="btn btn-primary" onclick="saveMgr()">Сохранить</button>
+    <button class="btn btn-primary" onclick="saveSendMgr()">Сохранить и отправить</button>
   </div>
 </div>
 
@@ -335,7 +339,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="self-intro">
     <div class="self-intro-icon">💡</div>
     <div>
-      <p><strong>Как работает само-оценка.</strong> Для каждой компетенции — 2–3 ситуационных вопроса. Оцените частоту поведения по шкале 1–5 и обязательно приведите конкретный пример из последних 3–6 месяцев. Без примера оценка не засчитывается.<br>
+      <p><strong>Как работает само-оценка.</strong> Для каждой компетенции оцените себя по каждому аспекту — кликните на описание уровня, которое лучше всего отражает вашу текущую практику. Если навык не проявляется — нажмите «✕ Не показываю». Добавьте конкретный кейс из практики.<br>
       <strong>Будьте честны:</strong> само-оценка сравнивается с оценкой руководителя — расхождения в обе стороны становятся темой для разговора, а не основанием для пересмотра грейда.</p>
     </div>
   </div>
@@ -668,16 +672,12 @@ function renderMgrComp(c) {
         </div>
         <div class="sub-body">
           <div class="criteria-grid">
-            <div class="criteria-col" id="msubcol-j-${c.id}-${si}"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body">${s.j}</div></div>
-            <div class="criteria-col" id="msubcol-m-${c.id}-${si}"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body">${s.m}</div></div>
-            <div class="criteria-col" id="msubcol-s-${c.id}-${si}"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body">${s.s}</div></div>
+            <div class="criteria-col" id="msubcol-j-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},1)"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body">${s.j}</div></div>
+            <div class="criteria-col" id="msubcol-m-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},2)"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body">${s.m}</div></div>
+            <div class="criteria-col" id="msubcol-s-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},3)"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body">${s.s}</div></div>
           </div>
           <div class="rating-row">
-            <span class="rating-label">Оценка:</span>
             <button class="rating-btn" id="msrb-0-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},0)">✕ Не показывает</button>
-            <button class="rating-btn" id="msrb-1-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},1)">◈ Junior</button>
-            <button class="rating-btn" id="msrb-2-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},2)">◈ Middle</button>
-            <button class="rating-btn" id="msrb-3-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},3)">◈ Senior</button>
           </div>
         </div>
       </div>`).join('')+`
@@ -822,17 +822,12 @@ function renderSelfComp(c) {
           <div class="self-sub-row" id="ssub-${c.id}-${si}">
             <div class="self-sub-header">
               <div class="self-sub-name">${si+1}. ${s.name}</div>
-              <div class="self-sub-btns">
-                <button class="rating-btn" id="ssrb-0-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},0)">✕ Не показываю</button>
-                <button class="rating-btn" id="ssrb-1-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},1)">◈ Junior</button>
-                <button class="rating-btn" id="ssrb-2-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},2)">◈ Middle</button>
-                <button class="rating-btn" id="ssrb-3-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},3)">◈ Senior</button>
-              </div>
+              <button class="rating-btn" id="ssrb-0-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},0)">✕ Не показываю</button>
             </div>
             <div class="self-criteria-grid">
-              <div class="self-criteria-col">${s.j}</div>
-              <div class="self-criteria-col">${s.m}</div>
-              <div class="self-criteria-col">${s.s}</div>
+              <div class="self-criteria-col" id="ssrb-1-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},1)">${s.j}</div>
+              <div class="self-criteria-col" id="ssrb-2-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},2)">${s.m}</div>
+              <div class="self-criteria-col" id="ssrb-3-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},3)">${s.s}</div>
             </div>
           </div>`).join('')}
       </div>
@@ -869,7 +864,7 @@ function renderSelfComp(c) {
     <div class="self-body">
       ${subRatingsHtml}
       <div class="self-qs-section">
-        <div class="self-qs-label">Дополнительные вопросы для рефлексии</div>
+        <div class="self-qs-label">Кейсы и рефлексия</div>
         ${questionsHtml}
       </div>
     </div>`;
@@ -878,10 +873,14 @@ function renderSelfComp(c) {
 
 function setSelfSub(cid, si, val) {
   selfSubRatings[`${cid}-${si}`] = val;
-  const smap = {0:'sel-0',1:'sel-j',2:'sel-m',3:'sel-s'};
-  [0,1,2,3].forEach(i=>{
-    const b = document.getElementById(`ssrb-${i}-${cid}-${si}`);
-    if(b) b.className = 'rating-btn'+(i===val?` ${smap[val]}`:'');
+  const cmap = {1:'sel-j',2:'sel-m',3:'sel-s'};
+  // "not shown" button
+  const b0 = document.getElementById(`ssrb-0-${cid}-${si}`);
+  if(b0) b0.className = 'rating-btn'+(val===0?' sel-0':'');
+  // criteria columns
+  [1,2,3].forEach(i=>{
+    const col = document.getElementById(`ssrb-${i}-${cid}-${si}`);
+    if(col) col.className = 'self-criteria-col'+(i===val?` ${cmap[i]}`:'');
   });
   updateSelfBadge(cid);
   updateSelfProgress();
@@ -1070,6 +1069,49 @@ function renderGap() {
   document.getElementById('badge-gap').classList.toggle('show', mgrDone===9&&selfValid.length===9);
 }
 
+// ─── SAVE / SEND ─────────────────────────────────────────────────────────
+function saveMgr() {
+  const data = {
+    candidate: document.getElementById('meta-candidate').value,
+    assessor: document.getElementById('meta-assessor').value,
+    date: document.getElementById('meta-date').value,
+    mgrSubRatings: Object.assign({}, mgrSubRatings),
+    mgrComments: Object.assign({}, mgrComments),
+    general: document.getElementById('mgr-general').value,
+    savedAt: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem('po-assessment-mgr', JSON.stringify(data));
+    alert('Оценка сохранена.');
+  } catch(e) {
+    alert('Ошибка сохранения: ' + e.message);
+  }
+}
+
+function saveSendMgr() {
+  saveMgr();
+  const candidate = document.getElementById('meta-candidate').value || '—';
+  const assessor  = document.getElementById('meta-assessor').value  || '—';
+  const date      = document.getElementById('meta-date').value      || '—';
+  const general   = document.getElementById('mgr-general').value    || '—';
+  const lines = [
+    'PO Assessment — Оценка руководителя',
+    `Сотрудник: ${candidate}`,
+    `Руководитель: ${assessor}`,
+    `Дата: ${date}`,
+    '',
+    ...comps.map(c=>{
+      const score = getMgrScore(c.id);
+      const label = score !== undefined ? getGradeInfo(score).label + ` (${score.toFixed(1)})` : 'не оценено';
+      return `${c.id}. ${c.name}: ${label}`;
+    }),
+    '',
+    `Комментарий: ${general}`
+  ];
+  const subject = `PO Assessment: ${candidate} — ${date}`;
+  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+}
+
 // ─── RESET ───────────────────────────────────────────────────────────────
 function resetMgr() {
   if(!confirm('Сбросить оценку руководителя?')) return;
@@ -1111,7 +1153,8 @@ function resetSelf() {
     delete selfCompExamples[c.id];
     c.subs.forEach((_,si)=>{
       delete selfSubRatings[`${c.id}-${si}`];
-      [0,1,2,3].forEach(i=>{const b=document.getElementById(`ssrb-${i}-${c.id}-${si}`);if(b)b.className='rating-btn';});
+      const b0=document.getElementById(`ssrb-0-${c.id}-${si}`);if(b0)b0.className='rating-btn';
+      [1,2,3].forEach(i=>{const col=document.getElementById(`ssrb-${i}-${c.id}-${si}`);if(col)col.className='self-criteria-col';});
     });
     const cex=document.getElementById(`cex-${c.id}`);if(cex)cex.value='';
     const card = document.getElementById(`scomp-${c.id}`);
