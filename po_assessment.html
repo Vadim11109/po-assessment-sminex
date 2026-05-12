@@ -157,6 +157,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* Self result badge */
 .self-score-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--purple-light);background:var(--purple-bg);color:var(--purple)}
 
+/* Self sub-items */
+.self-sub-section{background:var(--surface2);border-radius:8px;padding:.875rem 1rem;margin-bottom:1rem}
+.self-sub-section-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+.self-sub-list{margin-bottom:.875rem}
+.self-sub-row{display:flex;align-items:center;gap:.75rem;padding:.375rem 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.self-sub-row:last-child{border-bottom:none;padding-bottom:0}
+.self-sub-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:140px}
+.self-sub-btns{display:flex;gap:4px;flex-wrap:wrap}
+.self-qs-section{border-top:2px dashed var(--border);padding-top:1rem;margin-top:.5rem}
+.self-qs-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.875rem}
+
 /* ===== RESULTS ===== */
 .results{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.75rem 2rem;margin-top:1.25rem;display:none}
 .results.visible{display:block}
@@ -626,7 +637,7 @@ const comps = [
 const freqLabels = ["Никогда / крайне редко","Иногда (реже 50%)","Примерно в половине случаев","Часто (>70% случаев)","Почти всегда / всегда"];
 
 // State
-const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, selfAnswers = {}, selfExamples = {};
+const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, selfAnswers = {}, selfExamples = {}, selfSubRatings = {}, selfCompExamples = {};
 
 // ─── TABS ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -799,6 +810,28 @@ function renderSelfComp(c) {
   const div = document.createElement('div');
   div.className = 'self-card';
   div.id = `scomp-${c.id}`;
+
+  const subRatingsHtml = `
+    <div class="self-sub-section">
+      <div class="self-sub-section-label">Оцените себя по каждому аспекту</div>
+      <div class="self-sub-list">
+        ${c.subs.map((s,si)=>`
+          <div class="self-sub-row" id="ssub-${c.id}-${si}">
+            <div class="self-sub-name">${si+1}. ${s.name}</div>
+            <div class="self-sub-btns">
+              <button class="rating-btn" id="ssrb-0-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},0)">✕ Не показываю</button>
+              <button class="rating-btn" id="ssrb-1-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},1)">◈ Junior</button>
+              <button class="rating-btn" id="ssrb-2-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},2)">◈ Middle</button>
+              <button class="rating-btn" id="ssrb-3-${c.id}-${si}" onclick="setSelfSub(${c.id},${si},3)">◈ Senior</button>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="example-field">
+        <label>Кейс или конкретный пример из практики</label>
+        <textarea id="cex-${c.id}" placeholder="Ситуация, которая лучше всего отражает ваш уровень по этой компетенции..." onchange="selfCompExamples[${c.id}]=this.value"></textarea>
+      </div>
+    </div>`;
+
   const questionsHtml = c.self_qs.map((q,qi)=>`
     <div class="q-block">
       <div class="q-label">${qi+1}. ${q.q}</div>
@@ -807,8 +840,8 @@ function renderSelfComp(c) {
         ${freqLabels.map((l,fi)=>`<button class="freq-btn" onclick="setFreq(${c.id},${qi},${fi+1})" id="fb-${c.id}-${qi}-${fi+1}">${fi+1} — ${l}</button>`).join('')}
       </div>
       <div class="example-field">
-        <label>Конкретный пример из практики *</label>
-        <textarea id="ex-${c.id}-${qi}" placeholder="Ситуация, когда это проявилось. Без примера балл не учитывается." onchange="saveExample(${c.id},${qi},this.value)"></textarea>
+        <label>Конкретный пример из практики</label>
+        <textarea id="ex-${c.id}-${qi}" placeholder="Ситуация, когда это проявилось..." onchange="saveExample(${c.id},${qi},this.value)"></textarea>
       </div>
     </div>`).join('');
 
@@ -823,8 +856,25 @@ function renderSelfComp(c) {
       <div><span class="self-score-badge" id="sbadge-${c.id}">не заполнено</span></div>
       <div class="comp-chevron">›</div>
     </div>
-    <div class="self-body">${questionsHtml}</div>`;
+    <div class="self-body">
+      ${subRatingsHtml}
+      <div class="self-qs-section">
+        <div class="self-qs-label">Дополнительные вопросы для рефлексии</div>
+        ${questionsHtml}
+      </div>
+    </div>`;
   return div;
+}
+
+function setSelfSub(cid, si, val) {
+  selfSubRatings[`${cid}-${si}`] = val;
+  const smap = {0:'sel-0',1:'sel-j',2:'sel-m',3:'sel-s'};
+  [0,1,2,3].forEach(i=>{
+    const b = document.getElementById(`ssrb-${i}-${cid}-${si}`);
+    if(b) b.className = 'rating-btn'+(i===val?` ${smap[val]}`:'');
+  });
+  updateSelfBadge(cid);
+  updateSelfProgress();
 }
 
 function setFreq(cid, qi, val) {
@@ -845,21 +895,22 @@ function saveExample(cid, qi, val) {
 
 function updateSelfBadge(cid) {
   const c = comps.find(x=>x.id===cid);
-  const ans = selfAnswers[cid]||{};
-  const filled = Object.keys(ans).length;
+  const rated = c.subs.filter((_,i)=>selfSubRatings[`${cid}-${i}`]!==undefined).length;
   const badge = document.getElementById(`sbadge-${cid}`);
-  if(filled === 0){badge.textContent='не заполнено';return;}
-  if(filled < c.self_qs.length){badge.textContent=`${filled}/${c.self_qs.length} вопросов`;return;}
-  const avg = Object.values(ans).reduce((a,b)=>a+b,0)/filled;
-  badge.textContent = `Среднее: ${avg.toFixed(1)}/5`;
+  if(rated === 0){badge.className='self-score-badge';badge.textContent='не заполнено';return;}
+  if(rated < c.subs.length){badge.className='self-score-badge';badge.textContent=`${rated}/${c.subs.length}`;return;}
+  const avg = c.subs.reduce((sum,_,i)=>sum+selfSubRatings[`${cid}-${i}`],0)/c.subs.length;
+  const gi = getGradeInfo(avg);
+  const bcls = gi.label==='Senior'?'s':gi.label==='Middle'?'m':gi.label==='Junior'?'j':'0';
+  badge.className = `badge badge-${bcls}`;
+  badge.textContent = `${gi.label} (${avg.toFixed(1)})`;
   document.getElementById(`scomp-${cid}`).classList.add('filled');
 }
 
 function getSelfScore(cid) {
   const c = comps.find(x=>x.id===cid);
-  const ans = selfAnswers[cid]||{};
-  if(Object.keys(ans).length < c.self_qs.length) return null;
-  return Object.values(ans).reduce((a,b)=>a+b,0)/c.self_qs.length;
+  if(!c.subs.every((_,i)=>selfSubRatings[`${cid}-${i}`]!==undefined)) return null;
+  return c.subs.reduce((sum,_,i)=>sum+selfSubRatings[`${cid}-${i}`],0)/c.subs.length;
 }
 
 function selfScoreTo3(avg5) {
@@ -868,10 +919,9 @@ function selfScoreTo3(avg5) {
 }
 
 function updateSelfProgress() {
-  const done = comps.filter(c=>{
-    const ans = selfAnswers[c.id]||{};
-    return Object.keys(ans).length >= c.self_qs.length;
-  }).length;
+  const done = comps.filter(c=>
+    c.subs.every((_,i)=>selfSubRatings[`${c.id}-${i}`]!==undefined)
+  ).length;
   document.getElementById('self-prog-fill').style.width=(done/9*100)+'%';
   document.getElementById('self-prog-done').textContent=done;
   const t=['заполните все блоки','осталось 8','осталось 7','осталось 6','осталось 5','осталось 4','осталось 3','осталось 2','осталось 1','✓ готово'];
@@ -933,7 +983,7 @@ function renderGap() {
 
   // SELF result
   let selfHtml = '', selfAvg = null;
-  const selfScores = comps.map(c=>selfScoreTo3(getSelfScore(c.id)));
+  const selfScores = comps.map(c=>getSelfScore(c.id));
   const selfValid = selfScores.filter(s=>s!==null);
   if(selfValid.length > 0) {
     selfAvg = selfValid.reduce((a,b)=>a+b,0)/selfValid.length;
@@ -945,7 +995,7 @@ function renderGap() {
           <div class="grade-badge-lg ${gi.cls}">${gi.label}</div>
           <div class="grade-score-wrap">Средний балл: <span class="grade-score-big">${selfAvg.toFixed(2)}</span> <span style="font-size:13px;color:var(--muted)">из 3.0</span></div>
         </div>
-        ${selfValid.length===9?`<div style="margin-top:.875rem">${comps.map((c,i)=>{const s=selfScores[i];if(s===null)return'';const pct=(s/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill fill-self" style="width:${pct}%"></div></div><div class="score-val">${(getSelfScore(c.id)||0).toFixed(1)}/5</div></div>`}).join('')}</div>`:''}
+        ${selfValid.length===9?`<div style="margin-top:.875rem">${comps.map((c,i)=>{const s=selfScores[i];if(s===null)return'';const gi3=getGradeInfo(s);const pct=(s/3*100).toFixed(0);return`<div class="score-row"><div class="score-name">${c.id}. ${c.name.substring(0,28)}${c.name.length>28?'…':''}</div><div class="score-track"><div class="score-fill fill-self" style="width:${pct}%"></div></div><div class="score-val">${gi3.label}</div></div>`}).join('')}</div>`:''}
       </div>`;
   }
 
@@ -961,7 +1011,7 @@ function renderGap() {
 
     const rowsHtml = comps.map((c,i)=>{
       const m = getMgrScore(c.id)||0;
-      const s = selfScoreTo3(getSelfScore(c.id))||0;
+      const s = getSelfScore(c.id)||0;
       const diff = s - m;
       const pct = Math.abs(diff)/3*100;
       const isOver = diff > 0.2;
@@ -1048,9 +1098,16 @@ function resetSelf() {
   comps.forEach(c=>{
     delete selfAnswers[c.id];
     delete selfExamples[c.id];
+    delete selfCompExamples[c.id];
+    c.subs.forEach((_,si)=>{
+      delete selfSubRatings[`${c.id}-${si}`];
+      [0,1,2,3].forEach(i=>{const b=document.getElementById(`ssrb-${i}-${c.id}-${si}`);if(b)b.className='rating-btn';});
+    });
+    const cex=document.getElementById(`cex-${c.id}`);if(cex)cex.value='';
     const card = document.getElementById(`scomp-${c.id}`);
     card.classList.remove('filled','open');
-    document.getElementById(`sbadge-${c.id}`).textContent='не заполнено';
+    const badge=document.getElementById(`sbadge-${c.id}`);
+    badge.className='self-score-badge';badge.textContent='не заполнено';
     c.self_qs.forEach((_,qi)=>{
       freqLabels.forEach((_,fi)=>{const b=document.getElementById(`fb-${c.id}-${qi}-${fi+1}`);if(b)b.className='freq-btn';});
       const ta=document.getElementById(`ex-${c.id}-${qi}`);if(ta)ta.value='';
