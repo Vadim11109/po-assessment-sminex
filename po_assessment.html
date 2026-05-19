@@ -251,6 +251,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
+/* ===== THANK YOU SCREEN ===== */
+.self-thankyou{display:none;text-align:center;padding:5rem 2rem 4rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-top:1.5rem}
+.self-thankyou.visible{display:block}
+.thankyou-icon{font-size:52px;margin-bottom:1.5rem;line-height:1}
+.thankyou-check{width:72px;height:72px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;font-size:30px;color:var(--green)}
+.thankyou-title{font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:600;color:var(--text);margin-bottom:.75rem;letter-spacing:-.2px}
+.thankyou-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:460px;margin:0 auto 2.25rem}
+.thankyou-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+
 @media print{
   body{background:#fff;padding:0}
   .actions,.comp-body,.comp-chevron,.rating-row,.comp-comment textarea,.general-comment textarea,.self-body,.tabs,.self-intro,.freq-btn,.example-field textarea{display:none!important}
@@ -361,14 +370,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <div id="self-comp-list"></div>
 
-  <div class="general-comment" style="margin-top:.5rem">
+  <div class="general-comment" style="margin-top:.5rem" id="self-general-section">
     <label>Что хочу развивать — мои приоритеты роста</label>
     <textarea id="self-general" placeholder="Что даётся труднее всего? Какие навыки хочу прокачать? Какую поддержку жду от руководителя?"></textarea>
   </div>
 
-  <div class="actions">
+  <div class="actions" id="self-actions-row">
     <button class="btn btn-purple" onclick="switchTab('gap')">Посмотреть сводку →</button>
     <button class="btn btn-ghost" onclick="resetSelf()">Сбросить</button>
+  </div>
+
+  <div class="self-thankyou" id="self-thankyou">
+    <div class="thankyou-check">✓</div>
+    <div class="thankyou-title">Спасибо за честность!</div>
+    <div class="thankyou-sub">Само-оценка завершена. Ваши ответы переданы руководителю и HR — они используют их для развивающего диалога, а не для пересмотра грейда. Вы молодец, что нашли время осмыслить свою работу.</div>
+    <div class="thankyou-actions">
+      <button class="btn btn-ghost" onclick="hideSelfThankyou()">Вернуться к ответам</button>
+    </div>
   </div>
 </div>
 
@@ -914,8 +932,8 @@ function setMgrSub(cid, si, val) {
   if(rated === c.subs.length){
     const avg = c.subs.reduce((sum,_,i)=>sum+mgrSubRatings[`${cid}-${i}`],0)/c.subs.length;
     const gi = getGradeInfo(avg);
-    const bcls = gi.label==='Senior'?'s':gi.label==='Middle'?'m':gi.label==='Junior'?'j':'0';
-    const ncls = gi.label==='Senior'?'rated-s':gi.label==='Middle'?'rated-m':gi.label==='Junior'?'rated-j':'';
+    const bcls = gi.grade==='S'?'s':gi.grade==='M'?'m':gi.grade==='J'?'j':'0';
+    const ncls = gi.grade==='S'?'rated-s':gi.grade==='M'?'rated-m':gi.grade==='J'?'rated-j':'';
     compBadge.className = `badge badge-${bcls}`;
     compBadge.textContent = `${gi.label} (${avg.toFixed(1)})`;
     numEl.className = `comp-num ${ncls}`;
@@ -1059,7 +1077,7 @@ function updateSelfBadge(cid) {
   if(rated < c.subs.length){badge.className='self-score-badge';badge.textContent=`${rated}/${c.subs.length}`;return;}
   const avg = c.subs.reduce((sum,_,i)=>sum+selfSubRatings[`${cid}-${i}`],0)/c.subs.length;
   const gi = getGradeInfo(avg);
-  const bcls = gi.label==='Senior'?'s':gi.label==='Middle'?'m':gi.label==='Junior'?'j':'0';
+  const bcls = gi.grade==='S'?'s':gi.grade==='M'?'m':gi.grade==='J'?'j':'0';
   badge.className = `badge badge-${bcls}`;
   badge.textContent = `${gi.label} (${avg.toFixed(1)})`;
   document.getElementById(`scomp-${cid}`).classList.add('filled');
@@ -1086,6 +1104,9 @@ function updateSelfProgress() {
   document.getElementById('self-prog-text').textContent=t[done]||'';
   const tb = document.getElementById('badge-self');
   tb.textContent=done+'/9'; tb.classList.toggle('show',done>0);
+  if(done===9 && !document.getElementById('self-thankyou').classList.contains('visible')) {
+    setTimeout(showSelfThankyou, 600);
+  }
 }
 
 // ─── TOGGLE CARDS ───────────────────────────────────────────────────────
@@ -1096,19 +1117,43 @@ function toggleCard(id) {
 
 // ─── GAP / SUMMARY ──────────────────────────────────────────────────────
 function getGradeInfo(avg) {
-  if(avg >= 2.4) return {label:"Senior",cls:"grade-s",fcls:"fill-s"};
-  if(avg >= 1.6) return {label:"Middle",cls:"grade-m",fcls:"fill-m"};
-  if(avg >= 0.8) return {label:"Junior",cls:"grade-j",fcls:"fill-j"};
-  return {label:"Ниже Junior",cls:"grade-nd",fcls:"fill-nd"};
+  const grade = avg >= 2.4 ? 'S' : avg >= 1.6 ? 'M' : avg >= 0.8 ? 'J' : 'N';
+  const cls  = {S:'grade-s', M:'grade-m', J:'grade-j', N:'grade-nd'}[grade];
+  const fcls = {S:'fill-s',  M:'fill-m',  J:'fill-j',  N:'fill-nd'}[grade];
+  let label, rank;
+  if     (avg >= 2.8)  { label='Сеньор Ранг 3';  rank=3; }
+  else if(avg >= 2.6)  { label='Сеньор Ранг 2';  rank=2; }
+  else if(avg >= 2.4)  { label='Сеньор Ранг 1';  rank=1; }
+  else if(avg >= 2.13) { label='Мидл Ранг 3';    rank=3; }
+  else if(avg >= 1.87) { label='Мидл Ранг 2';    rank=2; }
+  else if(avg >= 1.6)  { label='Мидл Ранг 1';    rank=1; }
+  else if(avg >= 1.33) { label='Джуниор Ранг 3'; rank=3; }
+  else if(avg >= 1.07) { label='Джуниор Ранг 2'; rank=2; }
+  else if(avg >= 0.8)  { label='Джуниор Ранг 1'; rank=1; }
+  else                 { label='Ниже Джуниора';  rank=0; }
+  return {label, cls, fcls, grade, rank};
 }
 
 function getSummaryText(avg, ratedCount) {
   if(ratedCount < 9) return "";
-  if(avg >= 2.4) return "Кандидат уверенно демонстрирует уровень Senior: формирует продуктовую повестку, работает в условиях неопределённости, управляет через метрики. Готов к лидерской роли в кластере.";
-  if(avg >= 1.9) return "Уверенный Middle с потенциалом роста. Самостоятельно ведёт продукт, работает с бизнесом и командой. Точечный рост в 2–3 зонах откроет путь к Senior.";
-  if(avg >= 1.6) return "Переходный уровень Middle. Необходимо усиление самостоятельности в приоритизации и работе с метриками. Рекомендуется план развития на 3–6 месяцев.";
-  if(avg >= 0.8) return "Junior: выполняет задачи в рамках заданного контекста, работает по установленным процессам. Требуется развитие самостоятельности и продуктового мышления.";
-  return "Ниже уровня Junior. Рекомендуется базовое обучение и повторный ассесмент через 2–3 месяца.";
+  const gi = getGradeInfo(avg);
+  const grade = gi.grade, rank = gi.rank;
+  if(grade==='S') {
+    if(rank===3) return "Сеньор Ранг 3 — эталонный Senior. Формирует продуктовую повестку и стратегию на уровне направления. Готов к роли Product Lead или ментора команды.";
+    if(rank===2) return "Сеньор Ранг 2 — зрелый Senior. Уверенно ведёт продукт, управляет через метрики, влияет на бизнес-решения. До Ранга 3 — системность и кросс-командное лидерство.";
+    return "Сеньор Ранг 1 — входящий Senior. Компетенции на Senior-уровне, нужна бо́льшая стабильность и масштаб влияния. Рост внутри грейда через стратегические проекты.";
+  }
+  if(grade==='M') {
+    if(rank===3) return "Мидл Ранг 3 — сильный Middle на пороге Senior. Самостоятельно ведёт продукт, работает с бизнесом и командой. Точечный рост в 2–3 зонах откроет путь к Сеньор Ранг 1.";
+    if(rank===2) return "Мидл Ранг 2 — уверенный Middle. Хорошо освоены ключевые процессы, есть самостоятельность в приоритизации. Рост — в глубине аналитики и работе со стейкхолдерами.";
+    return "Мидл Ранг 1 — переходный уровень Middle. Базовые процессы освоены, требуется усиление самостоятельности. Рекомендуется план развития на 3–6 месяцев.";
+  }
+  if(grade==='J') {
+    if(rank===3) return "Джуниор Ранг 3 — зрелый Junior. Уверенно работает в рамках процессов, начинает проявлять самостоятельность. Прицел на переход в Мидл через 3–6 месяцев при правильном фокусе.";
+    if(rank===2) return "Джуниор Ранг 2 — Junior в развитии. Осваивает инструменты и процессы, выполняет задачи с поддержкой. Рост — в снижении зависимости от руководителя.";
+    return "Джуниор Ранг 1 — начало пути. Задачи выполняются по заданному контексту. Требуется структурная поддержка и обучение базовым компетенциям PO.";
+  }
+  return "Ниже уровня Джуниора. Рекомендуется базовое обучение и повторный ассесмент через 2–3 месяца.";
 }
 
 function renderGap() {
@@ -1294,8 +1339,25 @@ function resetMgr() {
   updateMgrProgress();
 }
 
+function showSelfThankyou() {
+  document.getElementById('self-comp-list').style.display = 'none';
+  document.getElementById('self-general-section').style.display = 'none';
+  document.getElementById('self-actions-row').style.display = 'none';
+  document.getElementById('self-thankyou').classList.add('visible');
+  // scroll to top of tab
+  document.getElementById('tab-content-self').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function hideSelfThankyou() {
+  document.getElementById('self-comp-list').style.display = '';
+  document.getElementById('self-general-section').style.display = '';
+  document.getElementById('self-actions-row').style.display = '';
+  document.getElementById('self-thankyou').classList.remove('visible');
+}
+
 function resetSelf() {
   if(!confirm('Сбросить само-оценку?')) return;
+  hideSelfThankyou();
   comps.forEach(c=>{
     delete selfAnswers[c.id];
     delete selfExamples[c.id];
