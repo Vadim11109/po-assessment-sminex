@@ -314,15 +314,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <div class="meta">
   <div class="meta-field">
     <label>Сотрудник</label>
-    <input type="text" id="meta-candidate" placeholder="ФИО" />
+    <input type="text" id="meta-candidate" placeholder="ФИО" oninput="saveDraft()" />
   </div>
   <div class="meta-field">
     <label>Руководитель / оценивающий</label>
-    <input type="text" id="meta-assessor" placeholder="ФИО" />
+    <input type="text" id="meta-assessor" placeholder="ФИО" oninput="saveDraft()" />
   </div>
   <div class="meta-field">
     <label>Дата</label>
-    <input type="date" id="meta-date" />
+    <input type="date" id="meta-date" oninput="saveDraft()" />
   </div>
 </div>
 
@@ -353,8 +353,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div class="mgr-intro">
     <div class="mgr-intro-icon">📋</div>
     <div>
-      <p><strong>Как работает оценка руководителя.</strong> Для каждой компетенции выберите блок, который лучше всего описывает наблюдаемое поведение сотрудника — без привязки к готовому «уровню», просто по смыслу описания. Если компетенция не проявилась в работе сотрудника — выберите первый блок. Если у вас недостаточно наблюдений, чтобы судить, — используйте «Не могу оценить»: такие пункты не повлияют на итоговый балл.<br>
-      <strong>Комментарии необязательны</strong>, но конкретные примеры сильно помогают в разговоре с сотрудником на 1:1.</p>
+      <p style="margin-bottom:.75rem">Перед вами анкета для оценки компетенций сотрудника. Пожалуйста, следуйте нижеприведённой инструкции:</p>
+      <ul style="margin:0;padding-left:1.25rem;font-size:13px;color:var(--text);line-height:1.65;list-style:disc">
+        <li style="margin-bottom:.5rem">Ознакомьтесь с компетенциями и поведенческими индикаторами. Каждый индикатор описывает конкретное поведение, которое может наблюдаться в рабочей деятельности. Оценивать нужно не личные качества, а фактическое поведение сотрудника в профессиональной среде.</li>
+        <li style="margin-bottom:.5rem">Оцените каждую компетенцию, выбрав подходящее описание поведения сотрудника. В крайних случаях используйте ответ «не могу оценить».</li>
+        <li style="margin-bottom:.5rem">Будьте объективны и последовательны. Оценивайте на основе последних 6–12 месяцев работы.</li>
+        <li style="margin-bottom:.5rem">Заполните анкету целиком. Не пропускайте компетенции и индикаторы. Не оставляйте пустых полей, там где их заполнение обязательно.</li>
+        <li>Завершите анкету в срок. Заполнение анкеты обычно занимает до 20 мин. По каждому блоку вы можете оставить комментарий.</li>
+      </ul>
+      <p style="margin-top:.75rem;margin-bottom:0">Ваши ответы будут сохраняться по мере прохождения опросника, так что при необходимости вы можете закрыть его и завершить позже.<br>
+      Спасибо вам за участие и вклад в развитие сотрудников!</p>
     </div>
   </div>
   <div class="progress-bar">
@@ -366,7 +374,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div id="mgr-comp-list"></div>
   <div class="general-comment">
     <label>Итоговые комментарии руководителя <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
-    <textarea id="mgr-general" placeholder="Общие наблюдения, рекомендации, план развития..."></textarea>
+    <textarea id="mgr-general" placeholder="Общие наблюдения, рекомендации, план развития..." oninput="saveDraft()"></textarea>
   </div>
   <div class="actions">
     <button class="btn btn-primary" onclick="saveMgr()">Сохранить</button>
@@ -396,7 +404,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <div class="general-comment" style="margin-top:.5rem" id="self-general-section">
     <label>Что хочу развивать — мои приоритеты роста <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
-    <textarea id="self-general" placeholder="Что даётся труднее всего? Какие навыки хочу прокачать? Какую поддержку жду от руководителя?"></textarea>
+    <textarea id="self-general" placeholder="Что даётся труднее всего? Какие навыки хочу прокачать? Какую поддержку жду от руководителя?" oninput="saveDraft()"></textarea>
   </div>
 
   <div class="actions" id="self-actions-row">
@@ -838,6 +846,97 @@ const freqLabels = ["Никогда / крайне редко","Иногда (р
 const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, mgrSubSkipped = {}, selfAnswers = {}, selfExamples = {}, selfSubRatings = {}, selfCompExamples = {};
 let gapReleased = false;
 
+// ─── DRAFT AUTOSAVE ─────────────────────────────────────────────────────
+const DRAFT_KEY = 'po-assessment-draft';
+let draftLoading = false;
+
+function saveDraft() {
+  if (draftLoading) return;
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      meta: {
+        candidate: document.getElementById('meta-candidate').value,
+        assessor: document.getElementById('meta-assessor').value,
+        date: document.getElementById('meta-date').value,
+      },
+      mgrSubRatings, mgrSubSkipped, mgrComments,
+      mgrGeneral: document.getElementById('mgr-general').value,
+      selfSubRatings, selfAnswers, selfExamples, selfCompExamples,
+      selfGeneral: document.getElementById('self-general').value,
+      savedAt: new Date().toISOString(),
+    }));
+  } catch(e) {}
+}
+
+function loadDraft() {
+  let raw;
+  try { raw = localStorage.getItem(DRAFT_KEY); } catch(e) { return; }
+  if (!raw) return;
+  let draft;
+  try { draft = JSON.parse(raw); } catch(e) { return; }
+
+  draftLoading = true;
+
+  if (draft.meta) {
+    if (draft.meta.candidate) document.getElementById('meta-candidate').value = draft.meta.candidate;
+    if (draft.meta.assessor) document.getElementById('meta-assessor').value = draft.meta.assessor;
+    if (draft.meta.date) document.getElementById('meta-date').value = draft.meta.date;
+  }
+
+  Object.entries(draft.mgrSubRatings || {}).forEach(([key, val]) => {
+    const [cid, si] = key.split('-').map(Number);
+    setMgrSub(cid, si, val);
+  });
+  Object.entries(draft.mgrSubSkipped || {}).forEach(([key, val]) => {
+    if (!val) return;
+    const [cid, si] = key.split('-').map(Number);
+    setMgrSubSkip(cid, si);
+  });
+  Object.entries(draft.mgrComments || {}).forEach(([cid, val]) => {
+    mgrComments[cid] = val;
+    const card = document.getElementById(`mcomp-${cid}`);
+    const ta = card && card.querySelector('.comp-comment textarea');
+    if (ta) ta.value = val;
+  });
+  if (draft.mgrGeneral) document.getElementById('mgr-general').value = draft.mgrGeneral;
+
+  Object.entries(draft.selfSubRatings || {}).forEach(([key, val]) => {
+    const [cid, si] = key.split('-').map(Number);
+    setSelfSub(cid, si, val);
+  });
+  Object.entries(draft.selfAnswers || {}).forEach(([cid, qs]) => {
+    Object.entries(qs).forEach(([qi, val]) => setFreq(Number(cid), Number(qi), val));
+  });
+  Object.entries(draft.selfExamples || {}).forEach(([cid, qs]) => {
+    Object.entries(qs).forEach(([qi, val]) => {
+      saveExample(Number(cid), Number(qi), val);
+      const ta = document.getElementById(`ex-${cid}-${qi}`);
+      if (ta) ta.value = val;
+    });
+  });
+  Object.entries(draft.selfCompExamples || {}).forEach(([cid, val]) => {
+    selfCompExamples[cid] = val;
+    const ta = document.getElementById(`cex-${cid}`);
+    if (ta) ta.value = val;
+  });
+  if (draft.selfGeneral) document.getElementById('self-general').value = draft.selfGeneral;
+
+  draftLoading = false;
+  showDraftBanner();
+}
+
+function showDraftBanner() {
+  const banner = document.createElement('div');
+  banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--green-bg);border:1px solid var(--green-light);border-left:3px solid var(--green);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:1.25rem';
+  banner.innerHTML = '<span style="font-size:13px;color:var(--green)">Восстановлен черновик, сохранённый ранее — можно продолжить с того же места.</span><button class="btn" style="padding:5px 14px;font-size:12px" onclick="this.parentElement.remove()">Понятно</button>';
+  const firstTabContent = document.getElementById('tab-content-mgr');
+  firstTabContent.parentElement.insertBefore(banner, firstTabContent);
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
 // ─── TABS ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
   ['mgr','self','gap'].forEach(t=>{
@@ -909,7 +1008,7 @@ function renderMgrComp(c) {
       ${bodyInner}
       <div class="comp-comment">
         <label>Комментарий и наблюдения <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
-        <textarea placeholder="Конкретные ситуации, поведение, аргументы..." onchange="mgrComments[${c.id}]=this.value"></textarea>
+        <textarea placeholder="Конкретные ситуации, поведение, аргументы..." oninput="mgrComments[${c.id}]=this.value;saveDraft()"></textarea>
       </div>
     </div>`;
   return div;
@@ -955,6 +1054,7 @@ function setMgrSub(cid, si, val) {
   });
   updateMgrCompBadge(cid);
   updateMgrProgress();
+  saveDraft();
 }
 
 function setMgrSubSkip(cid, si) {
@@ -970,6 +1070,7 @@ function setMgrSubSkip(cid, si) {
   });
   updateMgrCompBadge(cid);
   updateMgrProgress();
+  saveDraft();
 }
 
 function updateMgrCompBadge(cid) {
@@ -1060,7 +1161,7 @@ function renderSelfComp(c) {
       </div>
       <div class="example-field">
         <label>Кейс или конкретный пример из практики <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
-        <textarea id="cex-${c.id}" placeholder="Ситуация, которая лучше всего отражает ваш уровень по этой компетенции..." onchange="selfCompExamples[${c.id}]=this.value"></textarea>
+        <textarea id="cex-${c.id}" placeholder="Ситуация, которая лучше всего отражает ваш уровень по этой компетенции..." oninput="selfCompExamples[${c.id}]=this.value;saveDraft()"></textarea>
       </div>
     </div>`;
 
@@ -1111,6 +1212,7 @@ function setSelfSub(cid, si, val) {
   });
   updateSelfBadge(cid);
   updateSelfProgress();
+  saveDraft();
 }
 
 function setFreq(cid, qi, val) {
@@ -1122,11 +1224,13 @@ function setFreq(cid, qi, val) {
   });
   updateSelfBadge(cid);
   updateSelfProgress();
+  saveDraft();
 }
 
 function saveExample(cid, qi, val) {
   if(!selfExamples[cid]) selfExamples[cid] = {};
   selfExamples[cid][qi] = val;
+  saveDraft();
 }
 
 function updateSelfBadge(cid) {
@@ -1479,6 +1583,7 @@ function resetSelf() {
   });
   document.getElementById('self-general').value='';
   updateSelfProgress();
+  saveDraft();
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────
@@ -1486,6 +1591,7 @@ const mgrList = document.getElementById('mgr-comp-list');
 const selfList = document.getElementById('self-comp-list');
 comps.forEach(c=>{mgrList.appendChild(renderMgrComp(c));selfList.appendChild(renderSelfComp(c));});
 document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+loadDraft();
 </script>
 </body>
 </html>
