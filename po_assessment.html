@@ -79,6 +79,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .badge-m{background:var(--green-bg);color:var(--green);border-color:var(--green-light)}
 .badge-s{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-light)}
 .badge-0{background:var(--red-bg);color:var(--red);border-color:var(--red-light)}
+.badge-skip{background:var(--surface2);color:var(--hint);border-color:var(--border);font-style:italic}
 .comp-chevron{color:var(--hint);font-size:16px;transition:transform .18s;flex-shrink:0}
 .comp-card.open > .comp-header > .comp-chevron{transform:rotate(90deg)}
 .comp-body{display:none;border-top:1px solid var(--border);padding:1.5rem 1.75rem}
@@ -88,6 +89,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .criteria-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
 .criteria-col{border-radius:3px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s}
 .criteria-col:hover{border-color:var(--border2);box-shadow:0 2px 8px rgba(0,0,0,.06);transform:translateY(-1px)}
+.criteria-col.active-0{border-color:var(--red);border-width:2px;box-shadow:0 4px 16px rgba(153,27,27,.12)}
 .criteria-col.active-j{border-color:var(--blue);border-width:2px;box-shadow:0 4px 16px rgba(42,84,128,.12)}
 .criteria-col.active-m{border-color:var(--green);border-width:2px;box-shadow:0 4px 16px rgba(46,107,72,.12)}
 .criteria-col.active-s{border-color:var(--amber);border-width:2px;box-shadow:0 4px 16px rgba(138,104,0,.12)}
@@ -98,6 +100,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .criteria-body{padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.55}
 .criteria-body li{margin-bottom:4px;padding-left:10px;position:relative}
 .criteria-body li::before{content:'·';position:absolute;left:0;color:var(--hint)}
+.criteria-body-absent{color:var(--red);font-style:italic}
+.optional-hint{text-transform:none;font-weight:400;letter-spacing:0;color:var(--hint)}
 
 /* Rating buttons */
 .rating-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.25rem}
@@ -130,6 +134,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .self-intro-icon{font-size:22px;flex-shrink:0;margin-top:2px}
 .self-intro p{font-size:13px;color:#3B0764;line-height:1.65}
 .self-intro strong{font-weight:600}
+.mgr-intro{background:var(--blue-bg);border:1px solid var(--blue-light);border-radius:var(--radius);padding:1.25rem 1.75rem;margin-bottom:1.75rem;display:flex;gap:1rem;align-items:flex-start}
+.mgr-intro-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.mgr-intro p{font-size:13px;color:var(--text);line-height:1.65}
+.mgr-intro strong{font-weight:600}
+.gap-gate{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:1.25rem;border:1px solid var(--amber-light);border-left:3px solid var(--amber);background:var(--amber-bg)}
+.gap-gate.released{border-color:var(--green-light);border-left-color:var(--green);background:var(--green-bg)}
+.gap-gate-title{font-size:13px;font-weight:600;color:var(--amber);margin-bottom:2px}
+.gap-gate.released .gap-gate-title{color:var(--green)}
+.gap-gate-sub{font-size:12px;color:var(--muted);line-height:1.5}
+.gap-comments{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1rem}
+.gap-comments h4{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.625rem}
+.gap-comments p{font-size:13px;color:var(--text);line-height:1.65}
+.gap-comments .empty{color:var(--hint);font-style:italic}
 
 .self-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;border-radius:var(--radius);margin-bottom:1rem;overflow:hidden;transition:box-shadow .18s}
 .self-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -333,6 +350,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <!-- TAB: MANAGER -->
 <div class="tab-content active" id="tab-content-mgr">
+  <div class="mgr-intro">
+    <div class="mgr-intro-icon">📋</div>
+    <div>
+      <p><strong>Как работает оценка руководителя.</strong> Для каждой компетенции выберите блок, который лучше всего описывает наблюдаемое поведение сотрудника — без привязки к готовому «уровню», просто по смыслу описания. Если компетенция не проявилась в работе сотрудника — выберите первый блок. Если у вас недостаточно наблюдений, чтобы судить, — используйте «Не могу оценить»: такие пункты не повлияют на итоговый балл.<br>
+      <strong>Комментарии необязательны</strong>, но конкретные примеры сильно помогают в разговоре с сотрудником на 1:1.</p>
+    </div>
+  </div>
   <div class="progress-bar">
     <div style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">Прогресс</div>
     <div class="progress-track"><div class="progress-fill progress-fill-mgr" id="mgr-prog-fill" style="width:0%"></div></div>
@@ -341,7 +365,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
   <div id="mgr-comp-list"></div>
   <div class="general-comment">
-    <label>Итоговые комментарии руководителя</label>
+    <label>Итоговые комментарии руководителя <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
     <textarea id="mgr-general" placeholder="Общие наблюдения, рекомендации, план развития..."></textarea>
   </div>
   <div class="actions">
@@ -371,7 +395,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div id="self-comp-list"></div>
 
   <div class="general-comment" style="margin-top:.5rem" id="self-general-section">
-    <label>Что хочу развивать — мои приоритеты роста</label>
+    <label>Что хочу развивать — мои приоритеты роста <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
     <textarea id="self-general" placeholder="Что даётся труднее всего? Какие навыки хочу прокачать? Какую поддержку жду от руководителя?"></textarea>
   </div>
 
@@ -410,24 +434,24 @@ const comps = [
      {name:"Формулировка проблемы",
       j:"Понимает проблему, когда её сформулировал руководитель или заказчик",
       m:"Сам формулирует проблему и ожидаемый эффект до начала работы",
-      s:"Формирует problem statement на уровне продукта/направления, связывает с бизнес-целями",
+      s:"Формулирует продуктовые проблемы, увязывая их с бизнес-целями и ожидаемым результатом для компании",
       j_self:"Понимаю проблему, когда её сформулировал руководитель или заказчик",
       m_self:"Сам формулирую проблему и ожидаемый эффект до начала работы",
-      s_self:"Формирую problem statement на уровне продукта/направления, связываю с бизнес-целями"},
+      s_self:"Формулирую продуктовые проблемы, увязывая их с бизнес-целями и ожидаемым результатом для компании"},
      {name:"Анализ корневых причин",
-      j:"Работает с запросом как есть, решает то, что поставили",
-      m:"Отличает симптом от корневой причины, задаёт уточняющие вопросы",
-      s:"Системно анализирует причины, выявляет паттерны повторяющихся проблем",
-      j_self:"Работаю с запросом как есть, решаю то, что поставили",
-      m_self:"Отличаю симптом от корневой причины, задаю уточняющие вопросы",
-      s_self:"Системно анализирую причины, выявляю паттерны повторяющихся проблем"},
+      j:"Работает с запросом как есть, решает проблему в постановке бизнес-заказчика. Может ограничиваться стандартными параметрами контекста бизнес-подразделения-заказчика (на которые чаще всего обращает внимание в его проектах) при анализе корневых причин проблемы",
+      m:"Отличает симптом от корневой причины, задаёт уточняющие вопросы. Интерпретирует полученную информацию о проблеме в контексте деятельности компании в целом и бизнес-заказчиков в частности; верно интерпретирует информацию (его версия находит подтверждение у старших коллег и бизнес-заказчиков)",
+      s:"Системно анализирует причины, выявляет паттерны. Самостоятельно и проактивно интерпретирует полученную информацию о решаемой проблеме в контексте деятельности компании в целом и бизнес-заказчиков в частности; в том числе в новых направлениях деятельности компании / задач новых бизнес-подразделений",
+      j_self:"Работаю с запросом как есть, решаю проблему в постановке бизнес-заказчика. Могу ограничиваться стандартными параметрами контекста бизнес-подразделения-заказчика (на которые чаще всего обращаю внимание в своих проектах) при анализе корневых причин проблемы",
+      m_self:"Отличаю симптом от корневой причины, задаю уточняющие вопросы. Интерпретирую полученную информацию о проблеме в контексте деятельности компании в целом и бизнес-заказчиков в частности; верно интерпретирую информацию (моя версия находит подтверждение у старших коллег и бизнес-заказчиков)",
+      s_self:"Системно анализирую причины, выявляю паттерны. Самостоятельно и проактивно интерпретирую полученную информацию о решаемой проблеме в контексте деятельности компании в целом и бизнес-заказчиков в частности; в том числе в новых направлениях деятельности компании / задач новых бизнес-подразделений"},
      {name:"Генерация и оценка решений",
-      j:"Работает в рамках заданного решения, реализует то, что предложили",
-      m:"Предлагает 2–3 варианта решения, сравнивает по effort/impact",
-      s:"Оценивает решения с учётом архитектуры, масштабируемости и стратегии продукта",
-      j_self:"Работаю в рамках заданного решения, реализую то, что предложили",
-      m_self:"Предлагаю 2–3 варианта решения, сравниваю по effort/impact",
-      s_self:"Оцениваю решения с учётом архитектуры, масштабируемости и стратегии продукта"},
+      j:"Работает в рамках заданного решения, реализует то, что предложили. Не всегда может в полной мере ясно объяснить свои рекомендации сделанными на этапе анализа выводами",
+      m:"Предлагает 2–3 варианта решения, оценивает их по ожидаемому эффекту и требуемым затратам ресурсов. Всегда логически обосновывает рекомендации выводами, полученными на основании анализа информации",
+      s:"Оценивает решения с учётом архитектуры, масштабируемости и стратегии продукта. Делает свои рекомендации понятными и обоснованными для других через подкрепление их выводами, умеет чётко показать связь проблема — результаты анализа — решения",
+      j_self:"Работаю в рамках заданного решения, реализую то, что предложили. Не всегда могу в полной мере ясно объяснить свои рекомендации сделанными на этапе анализа выводами",
+      m_self:"Предлагаю 2–3 варианта решения, оцениваю их по ожидаемому эффекту и требуемым затратам ресурсов. Всегда логически обосновываю рекомендации выводами, полученными на основании анализа информации",
+      s_self:"Оцениваю решения с учётом архитектуры, масштабируемости и стратегии продукта. Делаю свои рекомендации понятными и обоснованными для других через подкрепление их выводами, умею чётко показать связь проблема — результаты анализа — решения"},
      {name:"Принятие решений в неопределённости",
       j:"Эскалирует решения при нехватке информации, ждёт указаний",
       m:"Принимает решения при 60–70% информации, осознанно фиксирует допущения",
@@ -436,10 +460,10 @@ const comps = [
       m_self:"Принимаю решения при 60–70% информации, осознанно фиксирую допущения",
       s_self:"Уверенно действую в условиях высокой неопределённости, управляю рисками решений"},
      {name:"Фильтрация и фокус",
-      j:"Берёт в работу задачи по приоритету руководителя",
+      j:"Иногда может допускать ошибки в оценке приоритетности задач, иногда прибегает к помощи руководителя при расстановке приоритетов",
       m:"Самостоятельно фильтрует входящие запросы, аргументированно говорит «нет» или «позже»",
       s:"Защищает фокус продукта на уровне стейкхолдеров, отсекает стратегически нерелевантное",
-      j_self:"Беру в работу задачи по приоритету руководителя",
+      j_self:"Иногда могу допускать ошибки в оценке приоритетности задач, иногда прибегаю к помощи руководителя при расстановке приоритетов",
       m_self:"Самостоятельно фильтрую входящие запросы, аргументированно говорю «нет» или «позже»",
       s_self:"Защищаю фокус продукта на уровне стейкхолдеров, отсекаю стратегически нерелевантное"},
      {name:"Продуктовое видение",
@@ -559,10 +583,10 @@ const comps = [
       s_self:"Стабилизирую delivery даже в сложных условиях — смена состава, технический долг, форс-мажоры"},
      {name:"Управление скоупом",
       j:"Фиксирует изменения скоупа, сообщает о них нужным людям",
-      m:"Управляет scope в спринте: принимает обоснованные решения о включении и исключении задач",
+      m:"Управляет скоупом в спринте: принимает обоснованные решения о включении и исключении задач",
       s:"Управляет рисками изменения скоупа на уровне релиза, защищает обязательства перед бизнесом",
       j_self:"Фиксирую изменения скоупа, сообщаю о них нужным людям",
-      m_self:"Управляю scope в спринте: принимаю обоснованные решения о включении и исключении задач",
+      m_self:"Управляю скоупом в спринте: принимаю обоснованные решения о включении и исключении задач",
       s_self:"Управляю рисками изменения скоупа на уровне релиза, защищаю обязательства перед бизнесом"},
      {name:"Работа с зависимостями",
       j:"Знает о зависимостях своих задач, передаёт информацию нужным людям",
@@ -582,7 +606,7 @@ const comps = [
    self_qs:[
      {q:"Мои релизы выходят в срок и в запланированном объёме — это правило, а не исключение",hint:"Не единичные случаи, а как правило — за последние 3–6 месяцев"},
      {q:"Я вижу риски, способные сорвать поставку, заблаговременно — до того, как они стали проблемой",hint:"Вспомни: ты их предсказывал или они приходили неожиданно?"},
-     {q:"Когда в спринте возникает конфликт объёма, я принимаю решение по scope самостоятельно — без эскалации к руководству",hint:"На основе собственного суждения и понимания приоритетов"}
+     {q:"Когда в спринте возникает конфликт объёма, я принимаю решение по скоупу самостоятельно — без эскалации к руководству",hint:"На основе собственного суждения и понимания приоритетов"}
    ]},
   {id:5,code:"SC",name:"Stakeholder & Communication Management",sub:"Работа с бизнесом",
    subs:[
@@ -811,7 +835,8 @@ const comps = [
 const freqLabels = ["Никогда / крайне редко","Иногда (реже 50%)","Примерно в половине случаев","Часто (>70% случаев)","Почти всегда / всегда"];
 
 // State
-const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, selfAnswers = {}, selfExamples = {}, selfSubRatings = {}, selfCompExamples = {};
+const mgrRatings = {}, mgrComments = {}, mgrSubRatings = {}, mgrSubSkipped = {}, selfAnswers = {}, selfExamples = {}, selfSubRatings = {}, selfCompExamples = {};
+let gapReleased = false;
 
 // ─── TABS ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -838,13 +863,15 @@ function renderMgrComp(c) {
           <div class="comp-chevron">›</div>
         </div>
         <div class="sub-body">
-          <div class="criteria-grid">
-            <div class="criteria-col" id="msubcol-j-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},1)"><div class="criteria-head criteria-head-j">Junior</div><div class="criteria-body">${s.j}</div></div>
-            <div class="criteria-col" id="msubcol-m-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},2)"><div class="criteria-head criteria-head-m">Middle</div><div class="criteria-body">${s.m}</div></div>
-            <div class="criteria-col" id="msubcol-s-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},3)"><div class="criteria-head criteria-head-s">Senior</div><div class="criteria-body">${s.s}</div></div>
+          <div class="criteria-grid" style="grid-template-columns:1fr 1fr 1fr 1fr">
+            <div class="criteria-col" id="msubcol-0-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},0)"><div class="criteria-body criteria-body-absent">Компетенция отсутствует / не проявилась</div></div>
+            <div class="criteria-col" id="msubcol-j-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},1)"><div class="criteria-body">${s.j}</div></div>
+            <div class="criteria-col" id="msubcol-m-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},2)"><div class="criteria-body">${s.m}</div></div>
+            <div class="criteria-col" id="msubcol-s-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},3)"><div class="criteria-body">${s.s}</div></div>
           </div>
           <div class="rating-row">
-            <button class="rating-btn" id="msrb-0-${c.id}-${si}" onclick="setMgrSub(${c.id},${si},0)">✕ Не показывает</button>
+            <span class="rating-label">Оценка:</span>
+            <button class="rating-btn" id="msrb-skip-${c.id}-${si}" onclick="setMgrSubSkip(${c.id},${si})">? Не могу оценить</button>
           </div>
         </div>
       </div>`).join('')+`
@@ -881,7 +908,7 @@ function renderMgrComp(c) {
     <div class="comp-body">
       ${bodyInner}
       <div class="comp-comment">
-        <label>Комментарий и наблюдения</label>
+        <label>Комментарий и наблюдения <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
         <textarea placeholder="Конкретные ситуации, поведение, аргументы..." onchange="mgrComments[${c.id}]=this.value"></textarea>
       </div>
     </div>`;
@@ -909,28 +936,60 @@ function setMgr(id, val) {
   updateMgrProgress();
 }
 
+function isMgrSubAnswered(cid, si) {
+  return mgrSubRatings[`${cid}-${si}`]!==undefined || !!mgrSubSkipped[`${cid}-${si}`];
+}
+
 function setMgrSub(cid, si, val) {
   mgrSubRatings[`${cid}-${si}`] = val;
+  delete mgrSubSkipped[`${cid}-${si}`];
   const lmap = {0:'badge-0',1:'badge-j',2:'badge-m',3:'badge-s'};
-  const tmap = {0:'✕',1:'J',2:'M',3:'S'};
-  const smap = {0:'sel-0',1:'sel-j',2:'sel-m',3:'sel-s'};
+  const tmap = {0:'⊘',1:'J',2:'M',3:'S'};
   const badge = document.getElementById(`msubbadge-${cid}-${si}`);
   if(badge){badge.className=`badge ${lmap[val]}`;badge.textContent=tmap[val];}
-  [0,1,2,3].forEach(i=>{
-    const b = document.getElementById(`msrb-${i}-${cid}-${si}`);
-    if(b) b.className = 'rating-btn'+(i===val?` ${smap[val]}`:'');
-  });
-  ['j','m','s'].forEach((v,i)=>{
+  const skipBtn = document.getElementById(`msrb-skip-${cid}-${si}`);
+  if(skipBtn) skipBtn.className = 'rating-btn';
+  ['0','j','m','s'].forEach((v,i)=>{
     const col = document.getElementById(`msubcol-${v}-${cid}-${si}`);
-    if(col) col.className = 'criteria-col'+(val===i+1?` active-${v}`:'');
+    if(col) col.className = 'criteria-col'+(val===i?` active-${v}`:'');
   });
+  updateMgrCompBadge(cid);
+  updateMgrProgress();
+}
+
+function setMgrSubSkip(cid, si) {
+  mgrSubSkipped[`${cid}-${si}`] = true;
+  delete mgrSubRatings[`${cid}-${si}`];
+  const badge = document.getElementById(`msubbadge-${cid}-${si}`);
+  if(badge){badge.className='badge badge-skip';badge.textContent='?';}
+  const skipBtn = document.getElementById(`msrb-skip-${cid}-${si}`);
+  if(skipBtn) skipBtn.className = 'rating-btn badge-skip';
+  ['0','j','m','s'].forEach(v=>{
+    const col = document.getElementById(`msubcol-${v}-${cid}-${si}`);
+    if(col) col.className = 'criteria-col';
+  });
+  updateMgrCompBadge(cid);
+  updateMgrProgress();
+}
+
+function updateMgrCompBadge(cid) {
   const c = comps.find(x=>x.id===cid);
-  const rated = c.subs.filter((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined).length;
+  const answered = c.subs.filter((_,i)=>isMgrSubAnswered(cid,i)).length;
   const compBadge = document.getElementById(`mbadge-${cid}`);
   const numEl = document.getElementById(`mnum-${cid}`);
   const totalBadge = document.getElementById(`msub-total-${cid}`);
-  if(rated === c.subs.length){
-    const avg = c.subs.reduce((sum,_,i)=>sum+mgrSubRatings[`${cid}-${i}`],0)/c.subs.length;
+  if(answered === c.subs.length){
+    const rated = c.subs.map((_,i)=>mgrSubRatings[`${cid}-${i}`]).filter(v=>v!==undefined);
+    if(rated.length === 0){
+      compBadge.className = 'badge badge-none';
+      compBadge.textContent = 'недостаточно данных';
+      numEl.className = 'comp-num';
+      document.getElementById(`mcomp-${cid}`).classList.add('rated');
+      totalBadge.className = 'badge badge-none';
+      totalBadge.textContent = 'недостаточно данных для оценки';
+      return;
+    }
+    const avg = rated.reduce((a,b)=>a+b,0)/rated.length;
     const gi = getGradeInfo(avg);
     const bcls = gi.grade==='S'?'s':gi.grade==='M'?'m':gi.grade==='J'?'j':'0';
     const ncls = gi.grade==='S'?'rated-s':gi.grade==='M'?'rated-m':gi.grade==='J'?'rated-j':'';
@@ -942,26 +1001,27 @@ function setMgrSub(cid, si, val) {
     totalBadge.textContent = `${gi.label} (${avg.toFixed(1)})`;
   } else {
     compBadge.className = 'badge badge-none';
-    compBadge.textContent = `${rated}/${c.subs.length}`;
+    compBadge.textContent = `${answered}/${c.subs.length}`;
     numEl.className = 'comp-num';
     totalBadge.className = 'badge badge-none';
-    totalBadge.textContent = `${rated}/${c.subs.length} оценено`;
+    totalBadge.textContent = `${answered}/${c.subs.length} оценено`;
   }
-  updateMgrProgress();
 }
 
 function getMgrScore(cid) {
   const c = comps.find(x=>x.id===cid);
   if(c.subs) {
-    if(!c.subs.every((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined)) return undefined;
-    return c.subs.reduce((sum,_,i)=>sum+mgrSubRatings[`${cid}-${i}`],0)/c.subs.length;
+    if(!c.subs.every((_,i)=>isMgrSubAnswered(cid,i))) return undefined;
+    const rated = c.subs.map((_,i)=>mgrSubRatings[`${cid}-${i}`]).filter(v=>v!==undefined);
+    if(rated.length === 0) return undefined;
+    return rated.reduce((a,b)=>a+b,0)/rated.length;
   }
   return mgrRatings[cid];
 }
 
 function isMgrCompDone(cid) {
   const c = comps.find(x=>x.id===cid);
-  if(c.subs) return c.subs.every((_,i)=>mgrSubRatings[`${cid}-${i}`]!==undefined);
+  if(c.subs) return c.subs.every((_,i)=>isMgrSubAnswered(cid,i));
   return mgrRatings[cid]!==undefined;
 }
 
@@ -999,7 +1059,7 @@ function renderSelfComp(c) {
           </div>`).join('')}
       </div>
       <div class="example-field">
-        <label>Кейс или конкретный пример из практики</label>
+        <label>Кейс или конкретный пример из практики <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
         <textarea id="cex-${c.id}" placeholder="Ситуация, которая лучше всего отражает ваш уровень по этой компетенции..." onchange="selfCompExamples[${c.id}]=this.value"></textarea>
       </div>
     </div>`;
@@ -1012,7 +1072,7 @@ function renderSelfComp(c) {
         ${freqLabels.map((l,fi)=>`<button class="freq-btn" onclick="setFreq(${c.id},${qi},${fi+1})" id="fb-${c.id}-${qi}-${fi+1}">${fi+1} — ${l}</button>`).join('')}
       </div>
       <div class="example-field">
-        <label>Конкретный пример из практики</label>
+        <label>Конкретный пример из практики <span class="optional-hint">(опционально, необязательно для заполнения)</span></label>
         <textarea id="ex-${c.id}-${qi}" placeholder="Ситуация, когда это проявилось..." onchange="saveExample(${c.id},${qi},this.value)"></textarea>
       </div>
     </div>`).join('');
@@ -1156,13 +1216,30 @@ function getSummaryText(avg, ratedCount) {
   return "Ниже уровня Джуниора. Рекомендуется базовое обучение и повторный ассесмент через 2–3 месяца.";
 }
 
+function renderGapGate() {
+  return `<div class="gap-gate${gapReleased?' released':''}">
+    <div style="flex:1;min-width:240px">
+      <div class="gap-gate-title">${gapReleased ? 'Результаты открыты сотруднику' : 'Результаты видны только руководителю и HR'}</div>
+      <div class="gap-gate-sub">${gapReleased
+        ? 'Отметка о том, что 1:1 с сотрудником проведён и эту вкладку можно показывать.'
+        : 'Прежде чем делиться этой вкладкой с сотрудником, проведите 1:1 и обсудите оценку лично. Файл статический — технически ограничить доступ к вкладке нельзя, это ручная договорённость команды.'}</div>
+    </div>
+    <button class="btn ${gapReleased?'':'btn-primary'}" onclick="toggleGapRelease()">${gapReleased ? 'Отметить как необсуждённое' : 'Отметить: 1:1 проведён'}</button>
+  </div>`;
+}
+
+function toggleGapRelease() {
+  gapReleased = !gapReleased;
+  renderGap();
+}
+
 function renderGap() {
   const mgrDone = comps.filter(c=>isMgrCompDone(c.id)).length;
   const selfDone = comps.filter(c=>{const a=selfAnswers[c.id]||{};return Object.keys(a).length>=c.self_qs.length;}).length;
   const panel = document.getElementById('gap-panel');
 
   if(mgrDone === 0 && selfDone === 0) {
-    panel.innerHTML = `<div style="text-align:center;padding:3rem 2rem;color:var(--muted);font-size:14px"><div style="font-size:40px;margin-bottom:1rem">⚖</div>Заполните обе формы, чтобы увидеть сравнение</div>`;
+    panel.innerHTML = renderGapGate() + `<div style="text-align:center;padding:3rem 2rem;color:var(--muted);font-size:14px"><div style="font-size:40px;margin-bottom:1rem">⚖</div>Заполните обе формы, чтобы увидеть сравнение</div>`;
     return;
   }
 
@@ -1253,10 +1330,32 @@ function renderGap() {
   let flagsHtml = '';
   if(mgrDone > 0) {
     const zeros = comps.filter(c=>getMgrScore(c.id)===0).map(c=>c.name);
-    if(zeros.length > 0) flagsHtml = `<div class="summary-box" style="border-color:var(--red-light);background:var(--red-bg)"><h3 style="color:var(--red)">Зоны критического внимания</h3><p style="font-size:13px;color:var(--red)"><strong>${zeros.join('; ')}</strong> — оценка «не показывает», приоритет для ИПР.</p></div>`;
+    if(zeros.length > 0) flagsHtml = `<div class="summary-box" style="border-color:var(--red-light);background:var(--red-bg)"><h3 style="color:var(--red)">Зоны критического внимания</h3><p style="font-size:13px;color:var(--red)"><strong>${zeros.join('; ')}</strong> — компетенция отсутствует / не проявилась, приоритет для ИПР.</p></div>`;
   }
 
-  panel.innerHTML = mgrHtml + selfHtml + gapHtml + flagsHtml +
+  // Comments
+  const mgrGeneral = (document.getElementById('mgr-general')||{}).value || '';
+  const mgrCompComments = comps.map(c=>mgrComments[c.id]).filter(Boolean);
+  const mgrCommentText = [mgrGeneral, ...mgrCompComments].filter(Boolean).join(' · ');
+  const selfGeneral = (document.getElementById('self-general')||{}).value || '';
+  const selfCompComments = comps.map(c=>selfCompExamples[c.id]).filter(Boolean);
+  const selfCommentText = [selfGeneral, ...selfCompComments].filter(Boolean).join(' · ');
+  const commentsHtml = `
+    <div class="summary-box" style="margin-top:1rem">
+      <h3>Комментарии</h3>
+      <div class="gap-comments">
+        <div>
+          <h4>Итоговый комментарий руководителя</h4>
+          <p class="${mgrCommentText?'':'empty'}">${mgrCommentText || 'Комментарий не оставлен'}</p>
+        </div>
+        <div>
+          <h4 style="color:var(--purple)">Приоритеты роста сотрудника</h4>
+          <p class="${selfCommentText?'':'empty'}">${selfCommentText || 'Комментарий не оставлен'}</p>
+        </div>
+      </div>
+    </div>`;
+
+  panel.innerHTML = renderGapGate() + mgrHtml + selfHtml + gapHtml + flagsHtml + commentsHtml +
     `<div class="actions"><button class="btn btn-primary" onclick="window.print()">Печать / PDF</button></div>`;
 
   document.getElementById('badge-gap').textContent = (mgrDone===9&&selfValid.length===9)?'✓':'';
@@ -1315,12 +1414,13 @@ function resetMgr() {
     if(c.subs) {
       c.subs.forEach((_,si)=>{
         delete mgrSubRatings[`${c.id}-${si}`];
+        delete mgrSubSkipped[`${c.id}-${si}`];
         const sub = document.getElementById(`msub-${c.id}-${si}`);
         if(sub) sub.classList.remove('open');
         const sbadge = document.getElementById(`msubbadge-${c.id}-${si}`);
         if(sbadge){sbadge.className='badge badge-none';sbadge.textContent='—';}
-        [0,1,2,3].forEach(i=>{const b=document.getElementById(`msrb-${i}-${c.id}-${si}`);if(b)b.className='rating-btn';});
-        ['j','m','s'].forEach(v=>{const col=document.getElementById(`msubcol-${v}-${c.id}-${si}`);if(col)col.className='criteria-col';});
+        const skipBtn=document.getElementById(`msrb-skip-${c.id}-${si}`);if(skipBtn)skipBtn.className='rating-btn';
+        ['0','j','m','s'].forEach(v=>{const col=document.getElementById(`msubcol-${v}-${c.id}-${si}`);if(col)col.className='criteria-col';});
       });
       const tb=document.getElementById(`msub-total-${c.id}`);
       if(tb){tb.className='badge badge-none';tb.textContent='оцените все пункты';}
