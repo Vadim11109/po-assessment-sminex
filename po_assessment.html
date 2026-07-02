@@ -34,6 +34,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .meta-field label{display:block;font-size:11px;font-weight:600;color:var(--hint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
 .meta-field input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:3px;font-size:14px;color:var(--text);background:var(--surface2);outline:none;font-family:inherit;font-weight:400}
 .meta-field input:focus{border-color:var(--blue);background:var(--surface)}
+.meta-field .req{color:var(--red);margin-left:2px}
+.meta-field input.field-error{border-color:var(--red);background:var(--red-bg)}
+.meta-error{grid-column:1 / -1;font-size:12px;color:var(--red);margin-top:-.25rem;display:none}
+.meta-error.show{display:block}
 
 /* Tabs */
 .tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:2rem}
@@ -313,17 +317,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <div class="meta">
   <div class="meta-field">
-    <label>Сотрудник</label>
-    <input type="text" id="meta-candidate" placeholder="ФИО" oninput="saveDraft()" />
+    <label>Сотрудник<span class="req">*</span></label>
+    <input type="text" id="meta-candidate" placeholder="ФИО" oninput="saveDraft();clearMetaError(this)" />
   </div>
   <div class="meta-field">
-    <label>Руководитель / оценивающий</label>
-    <input type="text" id="meta-assessor" placeholder="ФИО" oninput="saveDraft()" />
+    <label>Руководитель / оценивающий<span class="req">*</span></label>
+    <input type="text" id="meta-assessor" placeholder="ФИО" oninput="saveDraft();clearMetaError(this)" />
   </div>
   <div class="meta-field">
-    <label>Дата</label>
-    <input type="date" id="meta-date" oninput="saveDraft()" />
+    <label>Дата<span class="req">*</span></label>
+    <input type="date" id="meta-date" oninput="saveDraft();clearMetaError(this)" />
   </div>
+  <div class="meta-error" id="meta-error">Заполните обязательные поля: сотрудник, руководитель и дата — без них оценку нельзя сохранить.</div>
 </div>
 
 <!-- TABS -->
@@ -1467,7 +1472,32 @@ function renderGap() {
 }
 
 // ─── SAVE / SEND ─────────────────────────────────────────────────────────
+// ─── META VALIDATION (обязательные поля) ────────────────────────────────
+function clearMetaError(el){
+  el.classList.remove('field-error');
+  const anyErr = ['meta-candidate','meta-assessor','meta-date'].some(id=>document.getElementById(id).classList.contains('field-error'));
+  if(!anyErr) document.getElementById('meta-error').classList.remove('show');
+}
+function validateMeta(){
+  const ids = ['meta-candidate','meta-assessor','meta-date'];
+  let ok = true;
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el.value.trim()){ el.classList.add('field-error'); ok = false; }
+    else el.classList.remove('field-error');
+  });
+  const err = document.getElementById('meta-error');
+  err.classList.toggle('show', !ok);
+  if(!ok){
+    document.getElementById('meta-candidate').scrollIntoView({behavior:'smooth',block:'center'});
+    const firstBad = ids.map(id=>document.getElementById(id)).find(e=>e.classList.contains('field-error'));
+    if(firstBad) firstBad.focus({preventScroll:true});
+  }
+  return ok;
+}
+
 function saveMgr() {
+  if(!validateMeta()) return false;
   const data = {
     candidate: document.getElementById('meta-candidate').value,
     assessor: document.getElementById('meta-assessor').value,
@@ -1483,10 +1513,11 @@ function saveMgr() {
   } catch(e) {
     alert('Ошибка сохранения: ' + e.message);
   }
+  return true;
 }
 
 function saveSendMgr() {
-  saveMgr();
+  if(!saveMgr()) return;
   const candidate = document.getElementById('meta-candidate').value || '—';
   const assessor  = document.getElementById('meta-assessor').value  || '—';
   const date      = document.getElementById('meta-date').value      || '—';
